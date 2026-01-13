@@ -1,18 +1,9 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MooraHub.Models;
 
 namespace MooraHub.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
         public IActionResult Index()
         {
             return View();
@@ -23,10 +14,10 @@ namespace MooraHub.Controllers
             return View();
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        // NEW: Dashboard Page
+        public IActionResult Dashboard()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
     }
 }
