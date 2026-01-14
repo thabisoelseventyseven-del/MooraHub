@@ -66,3 +66,47 @@ body {
     .dark-mode .form-control::placeholder {
         color: #bbbbbb;
     }
+.navbar-brand img {
+    filter: drop-shadow(0 0 8px rgba(79, 172, 254, 0.6));
+    transition: transform 0.3s ease;
+}
+
+    .navbar-brand img:hover {
+        transform: scale(1.05);
+    }
+/* =======================
+   TECH BACKGROUND (LIGHT MODE)
+======================= */
+body {
+    background: radial-gradient( circle at top left, #eef3ff, #f8f9fc 40%, #ffffff 70% );
+    color: #212529;
+}
+
+/* Main content spacing */
+main {
+    position: relative;
+    z-index: 2;
+}
+
+/* =======================
+   TECH BACKGROUND (DARK MODE)
+======================= */
+body.dark-mode {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #ffffff;
+}
+
+/* Improve card appearance on dark mode */
+.dark-mode .card {
+    background-color: #1b1f2a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Subtle glow for headings */
+.tech-heading {
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
