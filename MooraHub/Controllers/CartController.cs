@@ -26,6 +26,8 @@ public class CartController : Controller
         }
 
         _cart.Add(HttpContext, id);
+
+        // ✅ After adding, go straight to Checkout
         return RedirectToAction("Checkout");
     }
 
@@ -34,12 +36,16 @@ public class CartController : Controller
     public IActionResult Checkout()
     {
         var cart = _cart.GetCart(HttpContext);
+
+        // Keep both options: ViewBag for other views + computed in view
         ViewBag.Total = _cart.Total(HttpContext);
+
         return View(cart);
     }
 
     [Authorize]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Remove(int index)
     {
         _cart.RemoveAt(HttpContext, index);
@@ -48,6 +54,7 @@ public class CartController : Controller
 
     [Authorize]
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Clear()
     {
         _cart.Clear(HttpContext);
