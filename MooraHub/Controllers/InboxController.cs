@@ -5,100 +5,98 @@ using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
 using MooraHub.Models;
 
-namespace MooraHub.Controllers;
-
-[Authorize]
-public class InboxController : Controller
+namespace MooraHub.Controllers
 {
-    private readonly ApplicationDbContext _db;
-    private readonly UserManager<IdentityUser> _userManager;
-
-    // Simple admin rule: YOUR email is admin
-    private const string AdminEmail = "Thabisoelseventyseven@gmail.com";
-
-    public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+    [Authorize]
+    public class InboxController : Controller
     {
-        _db = db;
-        _userManager = userManager;
-    }
+        private readonly ApplicationDbContext _db;
+        private readonly UserManager<IdentityUser> _userManager;
 
-    // USER INBOX
-    public async Task<IActionResult> Index()
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return RedirectToAction("Index", "Home");
+        // Your admin email (only this user can access Admin inbox)
+        private const string AdminEmail = "thabisoelseventyseven@gmail.com";
 
-        var tickets = await _db.SupportTickets
-            .Where(t => t.UserId == user.Id)
-            .OrderByDescending(t => t.CreatedAt)
-            .ToListAsync();
-
-        return View(tickets);
-    }
-
-    // SEND FROM CHECKOUT
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Send(string SelectedServices, int TotalAmount, string UserMessage)
-    {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return RedirectToAction("Index", "Home");
-
-        if (string.IsNullOrWhiteSpace(UserMessage))
+        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
         {
-            TempData["Err"] = "Please type a message in Sepedi or English before submitting.";
-            return RedirectToAction("Checkout", "Cart");
+            _db = db;
+            _userManager = userManager;
         }
 
-        var ticket = new SupportTicket
+        // ✅ POST from Checkout -> creates a ticket
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Send(string SelectedServices, int TotalAmount, string UserMessage)
         {
-            UserId = user.Id,
-            UserEmail = user.Email ?? "",
-            SelectedServices = SelectedServices ?? "",
-            TotalAmount = TotalAmount,
-            UserMessage = UserMessage.Trim(),
-            CreatedAt = DateTime.UtcNow
-        };
+            if (string.IsNullOrWhiteSpace(UserMessage))
+                return RedirectToAction("Checkout", "Cart");
 
-        _db.SupportTickets.Add(ticket);
-        await _db.SaveChangesAsync();
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
 
-        TempData["Ok"] = "Request sent. Check your Inbox for admin reply.";
-        return RedirectToAction("Index");
-    }
+            var ticket = new SupportTicket
+            {
+                UserId = user.Id,
+                UserEmail = user.Email ?? "",
+                SelectedServices = SelectedServices ?? "",
+                TotalAmount = TotalAmount,
+                UserMessage = UserMessage.Trim()
+            };
 
-    // ADMIN INBOX
-    public async Task<IActionResult> Admin()
-    {
-        if (!IsAdmin()) return Forbid();
+            _db.SupportTickets.Add(ticket);
+            await _db.SaveChangesAsync();
 
-        var tickets = await _db.SupportTickets
-            .OrderByDescending(t => t.CreatedAt)
-            .ToListAsync();
+            // ✅ after sending -> user sees their inbox
+            return RedirectToAction(nameof(My));
+        }
 
-        return View(tickets);
-    }
+        // ✅ USER INBOX: only tickets created by this user
+        [HttpGet]
+        public async Task<IActionResult> My()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Challenge();
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Reply(int id, string reply)
-    {
-        if (!IsAdmin()) return Forbid();
+            var tickets = await _db.SupportTickets
+                .Where(t => t.UserId == user.Id)
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
 
-        var ticket = await _db.SupportTickets.FirstOrDefaultAsync(t => t.Id == id);
-        if (ticket == null) return NotFound();
+            return View(tickets);
+        }
 
-        ticket.AdminReply = reply?.Trim();
-        ticket.RepliedAt = DateTime.UtcNow;
+        // ✅ ADMIN INBOX: only admin email can open this page
+        [HttpGet]
+        public async Task<IActionResult> Admin()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user?.Email?.ToLower() != AdminEmail.ToLower())
+                return Forbid();
 
-        await _db.SaveChangesAsync();
+            var tickets = await _db.SupportTickets
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
 
-        return RedirectToAction("Admin");
-    }
+            return View(tickets);
+        }
 
-    private bool IsAdmin()
-    {
-        return (User.Identity?.IsAuthenticated == true) &&
-               string.Equals(User.Identity?.Name, AdminEmail, StringComparison.OrdinalIgnoreCase);
+        // ✅ ADMIN REPLY
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Reply(int id, string reply)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user?.Email?.ToLower() != AdminEmail.ToLower())
+                return Forbid();
+
+            var ticket = await _db.SupportTickets.FirstOrDefaultAsync(t => t.Id == id);
+            if (ticket == null) return NotFound();
+
+            ticket.AdminReply = (reply ?? "").Trim();
+            ticket.RepliedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Admin));
+        }
     }
 }

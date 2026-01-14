@@ -1,0 +1,63 @@
+﻿@model List<MooraHub.Models.SupportTicket>
+@{
+    ViewData["Title"] = "My Inbox";
+}
+
+<div class="container my-4">
+
+    <div class="glass-card p-4 mb-4">
+        <h2 class="tech-heading mb-1">Inbox</h2>
+        <p class="mb-0" style="opacity:.85;">
+            Your messages sent from Checkout appear here. When the admin replies, you’ll see it below.
+        </p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-card p-4">
+            <p class="mb-0">No messages yet. Go to <a href="/Cart/Checkout">Checkout</a> and send your request.</p>
+        </div>
+    }
+    else
+    {
+        <div class="d-grid gap-3">
+            @foreach (var t in Model)
+            {
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="fw-semibold">Ticket #@t.Id</div>
+                        <div style="opacity:.75;">@t.CreatedAt.ToLocalTime()</div>
+                    </div>
+
+                    <hr style="opacity:.2;" />
+
+                    <div class="mb-2"><strong>Services:</strong> @t.SelectedServices</div>
+                    <div class="mb-3"><strong>Total:</strong> R@t.TotalAmount</div>
+
+                    <div class="mb-2"><strong>Your message:</strong></div>
+                    <div class="p-3 rounded" style="background: rgba(0,0,0,0.06);">
+                        @t.UserMessage
+                    </div>
+
+                    <div class="mt-3">
+                        <strong>Admin reply:</strong>
+                        @if (t.IsReplied)
+                        {
+                            <div class="p-3 rounded mt-2" style="background: rgba(0,200,140,0.10); border:1px solid rgba(0,200,140,0.25);">
+                                @t.AdminReply
+                                <div class="mt-2" style="opacity:.75; font-size:.9rem;">
+                                    Replied: @t.RepliedAt?.ToLocalTime()
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-2" style="opacity:.75;">Waiting for admin reply…</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>
