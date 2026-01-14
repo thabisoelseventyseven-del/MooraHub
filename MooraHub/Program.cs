@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
+using MooraHub.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,10 +24,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 // MVC
 builder.Services.AddControllersWithViews();
 
-
-using MooraHub.Services;
+// ✅ Session + Cart
 builder.Services.AddSession();
 builder.Services.AddScoped<CartSessionService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -41,6 +42,8 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+// ✅ IMPORTANT: Session must be BEFORE routing endpoints usage
 app.UseSession();
 
 app.UseRouting();
@@ -48,7 +51,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ THIS FIXES https://localhost:7007/
+// ✅ Default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

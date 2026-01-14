@@ -1,390 +1,83 @@
-﻿@{
+﻿@using MooraHub.Models
+@{
     ViewData["Title"] = "Dashboard";
 }
 
 <div class="container my-4">
 
-    <!-- Header -->
     <div class="glass-card p-4 mb-4">
-        <h2 class="mb-1 tech-heading">MooraHub Dashboard</h2>
-        <p class="mb-0" style="opacity:.85;">Select a service, manage your cart, checkout, or message the admin.</p>
+        <h2 class="tech-heading mb-1">MooraHub Dashboard</h2>
+        <p class="mb-0" style="opacity:.85;">Choose a service and add it to your cart. Then open Checkout to manage and remove items.</p>
     </div>
 
     <div class="row g-4">
-        <!-- LEFT: SERVICES -->
-        <div class="col-lg-8">
-            <div class="glass-card p-4 mb-4">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <h4 class="mb-0">Services</h4>
-                    <small style="opacity:.8;">Click “Add to Cart” to prepare checkout.</small>
-                </div>
+        @foreach (var s in ServiceCatalog.Items)
+        {
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="feature-card p-4 h-100 text-center">
+                    <div class="feature-icon">@s.Icon</div>
+                    <h5 class="mb-1 fw-semibold">@s.Name</h5>
+                    <p class="mb-3" style="opacity:.85;">R@s.Price</p>
 
-                <div class="row g-3 mt-2" id="servicesGrid">
-                    <!-- Service cards -->
-                </div>
-            </div>
-
-            <!-- INBOX / CHAT -->
-            <div class="glass-card p-4">
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <h4 class="mb-0">Inbox (Admin Chat)</h4>
-
-                    <div class="d-flex gap-2">
-                        <select id="langSelect" class="form-select form-select-sm" style="min-width:140px;">
-                            <option value="en" selected>English</option>
-                            <option value="nso">Sepedi</option>
-                        </select>
-
-                        <button class="btn btn-outline-light btn-sm" id="refreshBtn">Refresh</button>
-                    </div>
-                </div>
-
-                <div id="chatBox" class="chat-box mt-3">
-                    <div class="placeholder">No messages yet. Send a text or voice note to start.</div>
-                </div>
-
-                <!-- Compose -->
-                <div class="row g-3 mt-3">
-                    <div class="col-md-8">
-                        <textarea id="textMessage" class="form-control" rows="3"
-                                  placeholder="Type your message here (English or Sepedi)..."></textarea>
-                    </div>
-                    <div class="col-md-4 d-grid gap-2">
-                        <button class="btn btn-primary" id="sendTextBtn">Send Text</button>
-
-                        <button class="btn btn-outline-light" id="recordBtn">🎙️ Start Recording</button>
-
-                        <button class="btn btn-outline-light" id="stopBtn" disabled>⏹ Stop</button>
-
-                        <button class="btn btn-success" id="sendVoiceBtn" disabled>Send Voice Note</button>
-
-                        <audio id="audioPreview" controls style="width:100%; display:none;"></audio>
-                    </div>
+                    <a class="btn btn-primary w-100" href="/Cart/Add?id=@s.Id">
+                        Add to Cart
+                    </a>
                 </div>
             </div>
-        </div>
-
-        <!-- RIGHT: CART + CHECKOUT -->
-        <div class="col-lg-4">
-            <!-- Cart -->
-            <div class="glass-card p-4 mb-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h4 class="mb-0">Cart</h4>
-                    <span class="badge bg-primary" id="cartCount">0</span>
-                </div>
-
-                <div id="cartList" class="mt-3">
-                    <div class="placeholder">Your cart is empty.</div>
-                </div>
-
-                <hr style="opacity:.2;" />
-
-                <div class="d-flex align-items-center justify-content-between">
-                    <strong>Total</strong>
-                    <strong id="cartTotal">R0</strong>
-                </div>
-
-                <button class="btn btn-success w-100 mt-3" id="checkoutBtn" disabled>
-                    Proceed to Checkout
-                </button>
-            </div>
-
-            <!-- Checkout -->
-            <div class="glass-card p-4">
-                <h4>Checkout</h4>
-                <p style="opacity:.85;">
-                    This is a simple checkout placeholder. Next we will connect real payment or proof-of-payment upload.
-                </p>
-
-                <div class="mb-2">
-                    <label class="form-label">Full Name</label>
-                    <input id="fullName" class="form-control" placeholder="Your name" />
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label">Phone</label>
-                    <input id="phone" class="form-control" placeholder="e.g. 072..." />
-                </div>
-
-                <div class="mb-2">
-                    <label class="form-label">Notes (optional)</label>
-                    <textarea id="orderNotes" class="form-control" rows="3"
-                              placeholder="Any instructions to admin..."></textarea>
-                </div>
-
-                <button class="btn btn-primary w-100" id="placeOrderBtn" disabled>
-                    Place Order
-                </button>
-
-                <div id="orderStatus" class="mt-3" style="display:none;"></div>
-            </div>
-        </div>
+        }
     </div>
+
+    <div class="glass-card p-4 mt-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+        <div>
+            <div class="fw-semibold">Ready to checkout?</div>
+            <div style="opacity:.85;">Open Checkout from the top menu to remove items and see your total.</div>
+        </div>
+        <a class="btn btn-warning fw-semibold" href="/Cart/Checkout">Go to Checkout</a>
+    </div>
+
 </div>
 
 <style>
-    .chat-box {
-        min-height: 220px;
-        max-height: 320px;
-        overflow-y: auto;
-        padding: 14px;
-        border-radius: 16px;
-        background: rgba(0,0,0,0.18);
-        border: 1px solid rgba(255,255,255,0.08);
+    .feature-card {
+        border-radius: 18px;
+        min-height: 240px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(244,246,249,0.95));
+        transition: all 0.25s ease;
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
     }
 
-    body:not(.dark-mode) .chat-box {
-        background: rgba(255,255,255,0.55);
-        border: 1px solid rgba(0,0,0,0.08);
+    body.dark-mode .feature-card {
+        background: linear-gradient(180deg, rgba(27,27,27,0.85), rgba(18,18,18,0.85));
+        border-color: rgba(255,255,255,0.08);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.35);
     }
 
-    .msg {
-        padding: 10px 12px;
-        border-radius: 14px;
-        margin-bottom: 10px;
-        width: fit-content;
-        max-width: 85%;
-        word-wrap: break-word;
-        white-space: pre-wrap;
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 35px rgba(0,0,0,0.18);
     }
 
-        .msg.user {
-            margin-left: auto;
-            background: rgba(79,172,254,0.25);
-            border: 1px solid rgba(79,172,254,0.35);
-        }
-
-        .msg.admin {
-            margin-right: auto;
-            background: rgba(67,233,123,0.18);
-            border: 1px solid rgba(67,233,123,0.30);
-        }
-
-    .meta {
-        font-size: .78rem;
-        opacity: .75;
-        margin-top: 6px;
+    .feature-icon {
+        font-size: 4.4rem;
+        margin-bottom: 14px;
+        line-height: 1;
     }
 
-    .placeholder {
-        opacity: .75;
-        font-style: italic;
+    body.dark-mode .feature-icon {
+        text-shadow: 0 0 18px rgba(0,150,255,0.45);
+    }
+
+    .glass-card {
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.08);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 16px 30px rgba(0,0,0,0.10);
+    }
+
+    body:not(.dark-mode) .glass-card {
+        background: rgba(255,255,255,0.78);
+        border-color: rgba(0,0,0,0.06);
     }
 </style>
-
-<script>
-    // --------------------------
-    // Services (client-side list for now)
-    // Later we’ll load these from DB
-    // --------------------------
-    const services = [
-        { id: 1, icon: "💼", name: "Business Templates", price: 250 },
-        { id: 2, icon: "🎨", name: "Portfolio Templates", price: 200 },
-        { id: 3, icon: "🌐", name: "Landing Pages", price: 300 },
-        { id: 4, icon: "📣", name: "Marketing Materials", price: 180 },
-        { id: 5, icon: "📝", name: "CV Creation", price: 100 },
-        { id: 6, icon: "🎓", name: "University Applications", price: 150 },
-        { id: 7, icon: "📊", name: "Report Templates", price: 120 },
-        { id: 8, icon: "💻", name: "Web Templates", price: 350 }
-    ];
-
-    const servicesGrid = document.getElementById("servicesGrid");
-    const cartList = document.getElementById("cartList");
-    const cartCount = document.getElementById("cartCount");
-    const cartTotal = document.getElementById("cartTotal");
-    const checkoutBtn = document.getElementById("checkoutBtn");
-    const placeOrderBtn = document.getElementById("placeOrderBtn");
-    const orderStatus = document.getElementById("orderStatus");
-
-    let cart = [];
-
-    function renderServices(){
-        servicesGrid.innerHTML = "";
-        services.forEach(s => {
-            const col = document.createElement("div");
-            col.className = "col-12 col-sm-6 col-md-4";
-            col.innerHTML = `
-                <div class="glass-card p-4 h-100 text-center">
-                    <div style="font-size:3.2rem; margin-bottom:10px;">${s.icon}</div>
-                    <h6 class="fw-semibold mb-1">${s.name}</h6>
-                    <div class="fw-bold" style="color:#4facfe;">R${s.price}</div>
-                    <button class="btn btn-primary btn-sm mt-3 w-100"
-                            onclick="addToCart(${s.id})">
-                        Add to Cart
-                    </button>
-                </div>
-            `;
-            servicesGrid.appendChild(col);
-        });
-    }
-
-    function addToCart(id){
-        const item = services.find(x => x.id === id);
-        cart.push(item);
-        renderCart();
-    }
-
-    function removeFromCart(index){
-        cart.splice(index, 1);
-        renderCart();
-    }
-
-    function renderCart(){
-        cartCount.textContent = cart.length;
-
-        if(cart.length === 0){
-            cartList.innerHTML = `<div class="placeholder">Your cart is empty.</div>`;
-            cartTotal.textContent = "R0";
-            checkoutBtn.disabled = true;
-            placeOrderBtn.disabled = true;
-            return;
-        }
-
-        checkoutBtn.disabled = false;
-        placeOrderBtn.disabled = false;
-
-        let total = 0;
-        cartList.innerHTML = "";
-        cart.forEach((c, i) => {
-            total += c.price;
-            const row = document.createElement("div");
-            row.className = "d-flex align-items-center justify-content-between mb-2";
-            row.innerHTML = `
-                <div>
-                    <strong>${c.icon}</strong> ${c.name}
-                    <div style="opacity:.8; font-size:.9rem;">R${c.price}</div>
-                </div>
-                <button class="btn btn-outline-light btn-sm" onclick="removeFromCart(${i})">Remove</button>
-            `;
-            cartList.appendChild(row);
-        });
-
-        cartTotal.textContent = "R" + total;
-    }
-
-    // --------------------------
-    // Checkout (placeholder submit)
-    // Will become DB order + payment step
-    // --------------------------
-    placeOrderBtn.addEventListener("click", async () => {
-        orderStatus.style.display = "block";
-        orderStatus.className = "alert alert-info";
-        orderStatus.textContent = "Placing order...";
-
-        // TODO: call server endpoint to create Order in DB
-        // For now client-side simulation:
-        await new Promise(r => setTimeout(r, 800));
-
-        orderStatus.className = "alert alert-success";
-        orderStatus.textContent = "Order placed. Admin will contact you in Inbox.";
-        cart = [];
-        renderCart();
-    });
-
-    // --------------------------
-    // Inbox (Text + Voice Note)
-    // Backend endpoints will be added in Step 2
-    // --------------------------
-    const chatBox = document.getElementById("chatBox");
-    const textMessage = document.getElementById("textMessage");
-    const sendTextBtn = document.getElementById("sendTextBtn");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const langSelect = document.getElementById("langSelect");
-
-    function appendMessage(who, text, lang){
-        const wrap = document.createElement("div");
-        wrap.className = "msg " + (who === "user" ? "user" : "admin");
-        wrap.innerHTML = `
-            <div>${text}</div>
-            <div class="meta">${who.toUpperCase()} • ${lang.toUpperCase()} • ${new Date().toLocaleString()}</div>
-        `;
-        chatBox.querySelector(".placeholder")?.remove();
-        chatBox.appendChild(wrap);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    sendTextBtn.addEventListener("click", async () => {
-        const msg = textMessage.value.trim();
-        if(!msg) return;
-
-        const lang = langSelect.value;
-
-        appendMessage("user", msg, lang);
-        textMessage.value = "";
-
-        // TODO: POST to server: /api/messages/text
-        // For now: simulate admin response
-        await new Promise(r => setTimeout(r, 700));
-        appendMessage("admin", "Received. I will assist you shortly.", lang);
-    });
-
-    refreshBtn.addEventListener("click", async () => {
-        // TODO: GET from server: /api/messages
-        // For now: no-op
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
-
-    // --------------------------
-    // Voice recording (browser MediaRecorder)
-    // --------------------------
-    const recordBtn = document.getElementById("recordBtn");
-    const stopBtn = document.getElementById("stopBtn");
-    const sendVoiceBtn = document.getElementById("sendVoiceBtn");
-    const audioPreview = document.getElementById("audioPreview");
-
-    let mediaRecorder;
-    let chunks = [];
-    let recordedBlob = null;
-
-    recordBtn.addEventListener("click", async () => {
-        recordedBlob = null;
-        chunks = [];
-        audioPreview.style.display = "none";
-        audioPreview.src = "";
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-
-        mediaRecorder.ondataavailable = e => chunks.push(e.data);
-
-        mediaRecorder.onstop = () => {
-            recordedBlob = new Blob(chunks, { type: "audio/webm" });
-            const url = URL.createObjectURL(recordedBlob);
-            audioPreview.src = url;
-            audioPreview.style.display = "block";
-            sendVoiceBtn.disabled = false;
-        };
-
-        mediaRecorder.start();
-        recordBtn.disabled = true;
-        stopBtn.disabled = false;
-        sendVoiceBtn.disabled = true;
-        recordBtn.textContent = "🎙️ Recording...";
-    });
-
-    stopBtn.addEventListener("click", () => {
-        if(!mediaRecorder) return;
-        mediaRecorder.stop();
-        recordBtn.disabled = false;
-        stopBtn.disabled = true;
-        recordBtn.textContent = "🎙️ Start Recording";
-    });
-
-    sendVoiceBtn.addEventListener("click", async () => {
-        if(!recordedBlob) return;
-
-        const lang = langSelect.value;
-        appendMessage("user", "[Voice Note Sent]", lang);
-
-        // TODO: upload to server: /api/messages/voice
-        // We'll add this in Step 2 (controller + save file)
-        await new Promise(r => setTimeout(r, 700));
-        appendMessage("admin", "Voice note received. I’ll reply soon.", lang);
-
-        sendVoiceBtn.disabled = true;
-    });
-
-    // init
-    renderServices();
-    renderCart();
-</script>
