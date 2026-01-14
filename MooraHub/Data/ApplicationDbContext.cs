@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MooraHub.Models;
 
 namespace MooraHub.Data
 {
@@ -9,5 +10,8 @@ namespace MooraHub.Data
             : base(options)
         {
         }
+
+        // ✅ Inbox / Messages table
+        public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     }
 }

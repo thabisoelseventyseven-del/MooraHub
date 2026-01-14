@@ -2,59 +2,103 @@
 @{
     ViewData["Title"] = "Checkout";
     var total = (int)(ViewBag.Total ?? 0);
+    var summary = string.Join(", ", Model.Select(x => $"{x.Name} (R{x.Price})"));
 }
 
 <div class="container my-4">
+
     <div class="glass-card p-4 mb-4">
         <h2 class="tech-heading mb-1">Checkout</h2>
-        <p class="mb-0" style="opacity:.85;">Review your selected services. You can remove items anytime.</p>
+        <p class="mb-0" style="opacity:.9;">
+            Please describe what you want in <strong>Sepedi</strong> or <strong>English</strong>.
+            After you submit, it goes to your Inbox and the admin will reply.
+        </p>
     </div>
 
     @if (!Model.Any())
     {
         <div class="glass-card p-4">
-            <p class="mb-0">Your cart is empty. Go to <a href="/Home/Dashboard">Dashboard</a> and select services.</p>
+            <p class="mb-0">Your cart is empty. Go back to <a href="/Home/Dashboard">Dashboard</a> and add services.</p>
         </div>
     }
     else
     {
-        <div class="glass-card p-4 mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h4 class="mb-0">Items</h4>
+        <div class="row g-4">
 
-                <form method="post" asp-controller="Cart" asp-action="Clear">
-                    <button class="btn btn-outline-light btn-sm" type="submit">Clear Cart</button>
-                </form>
-            </div>
+            <!-- LEFT: ITEMS -->
+            <div class="col-12 col-lg-7">
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Your Services</h4>
 
-            <div class="d-grid gap-2">
-                @for (int i = 0; i < Model.Count; i++)
-                {
-                    <div class="d-flex justify-content-between align-items-center p-3"
-                         style="border-radius:14px; border:1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.15);">
-                        <div>
-                            <div style="font-size:1.4rem;">@Model[i].Icon <strong>@Model[i].Name</strong></div>
-                            <div style="opacity:.8;">R@Model[i].Price</div>
-                        </div>
-
-                        <form method="post" asp-controller="Cart" asp-action="Remove">
-                            <input type="hidden" name="index" value="@i" />
-                            <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                        <form method="post" asp-controller="Cart" asp-action="Clear">
+                            <button class="btn btn-danger btn-sm" type="submit">Clear Cart</button>
                         </form>
                     </div>
-                }
+
+                    <div class="d-grid gap-2">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <div class="d-flex justify-content-between align-items-center p-3"
+                                 style="border-radius:14px; border:1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.12);">
+                                <div>
+                                    <div style="font-size:1.3rem;">@Model[i].Icon <strong>@Model[i].Name</strong></div>
+                                    <div class="price-pill mt-1">R@Model[i].Price</div>
+                                </div>
+
+                                <form method="post" asp-controller="Cart" asp-action="Remove">
+                                    <input type="hidden" name="index" value="@i" />
+                                    <button class="btn btn-warning btn-sm" type="submit">Remove</button>
+                                </form>
+                            </div>
+                        }
+                    </div>
+
+                    <hr style="opacity:.2;" />
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Total</strong>
+                        <strong class="price-pill">R@total</strong>
+                    </div>
+                </div>
             </div>
 
-            <hr style="opacity:.2;" />
+            <!-- RIGHT: MESSAGE + PAYMENT -->
+            <div class="col-12 col-lg-5">
+                <div class="glass-card p-4 mb-4">
+                    <h4 class="mb-2">Message to Admin</h4>
+                    <p style="opacity:.85;" class="mb-3">
+                        Tell us exactly what you want. You can type in <strong>Sepedi</strong> or <strong>English</strong>.
+                        Include details like: names, university, CV sections, poster style, deadline, etc.
+                    </p>
 
-            <div class="d-flex justify-content-between">
-                <strong>Total</strong>
-                <strong>R@total</strong>
+                    <form method="post" asp-controller="Inbox" asp-action="Send">
+                        <input type="hidden" name="SelectedServices" value="@summary" />
+                        <input type="hidden" name="TotalAmount" value="@total" />
+
+                        <textarea class="mh-textarea" name="UserMessage"
+                              placeholder="Type your message here (Sepedi / English)... e.g. 'Ke nyaka CV ya nursing...' or 'I need a CV + university application...'"></textarea>
+
+                        <button class="btn btn-primary w-100 mt-3" type="submit">
+                            Submit Request to Inbox
+                        </button>
+                    </form>
+                </div>
+
+                <div class="glass-card p-4">
+                    <h4 class="mb-2">Payment</h4>
+                    <p style="opacity:.85;" class="mb-3">
+                        Payment integration is coming next. For now, after you submit your request, the admin will reply with payment instructions.
+                    </p>
+
+                    <div class="p-3" style="border-radius:14px; border:1px dashed rgba(255,255,255,0.25); background: rgba(0,0,0,0.10);">
+                        <div class="fw-semibold mb-1">Optional: Proof of payment</div>
+                        <div style="opacity:.8;">(We will enable real upload + storage next step.)</div>
+                        <input class="form-control mt-2" type="file" disabled />
+                    </div>
+                </div>
             </div>
 
-            <button class="btn btn-success w-100 mt-3" disabled>
-                Pay / Confirm (next step)
-            </button>
         </div>
     }
 </div>

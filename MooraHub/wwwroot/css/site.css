@@ -142,3 +142,85 @@ footer, .footer {
 body:not(.dark-mode) a {
     color: #1677ff;
 }
+/* =======================
+   MOORAHUB VISIBILITY FIXES
+======================= */
+:root {
+    --mh-accent: #4facfe;
+    --mh-accent-2: #00f2fe;
+    --mh-warn: #ffc107;
+    --mh-danger: #ff4d4d;
+}
+
+/* Strong readable buttons (works in light + dark) */
+.btn-primary, .btn-success, .btn-warning, .btn-danger, .btn-outline-light {
+    font-weight: 700 !important;
+    border-radius: 12px !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--mh-accent), var(--mh-accent-2)) !important;
+    border: none !important;
+    box-shadow: 0 12px 24px rgba(79, 172, 254, 0.25);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffd86b, var(--mh-warn)) !important;
+    border: none !important;
+    color: #111 !important;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff5f6d, #ffc371) !important;
+    border: none !important;
+    color: #111 !important;
+}
+
+.btn-outline-light {
+    border: 1px solid rgba(255,255,255,.45) !important;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    transition: 0.2s ease;
+}
+
+/* Better text contrast inside glass panels */
+.glass-card, .feature-card {
+    color: #111;
+}
+
+body.dark-mode .glass-card,
+body.dark-mode .feature-card {
+    color: #fff;
+}
+
+/* Prices more visible */
+.price-pill {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    background: rgba(0,0,0,0.08);
+}
+
+body.dark-mode .price-pill {
+    background: rgba(255,255,255,0.10);
+}
+
+/* Textarea styling for messages */
+.mh-textarea {
+    width: 100%;
+    min-height: 140px;
+    border-radius: 14px;
+    padding: 14px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: rgba(255,255,255,0.92);
+}
+
+body.dark-mode .mh-textarea {
+    border-color: rgba(255,255,255,0.14);
+    background: rgba(0,0,0,0.25);
+    color: #fff;
+}

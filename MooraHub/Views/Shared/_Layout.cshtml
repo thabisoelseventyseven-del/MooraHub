@@ -1,13 +1,9 @@
-﻿@using MooraHub.Services
-@inject CartSessionService Cart
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MooraHub</title>
-    <script type="importmap"></script>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -16,31 +12,28 @@
 
 <body>
     <header>
-        <!-- Tech Navbar (Glass) -->
+        <!-- TECH NAVBAR -->
         <nav class="navbar navbar-expand-sm navbar-dark tech-navbar border-bottom mb-4">
             <div class="container-fluid">
+
+                <!-- LOGO -->
                 <a class="navbar-brand d-flex align-items-center gap-2"
                    asp-controller="Home" asp-action="Index">
-
-                    <img src="~/images/logo.png"
-                         alt="MooraHub Logo"
-                         class="nav-logo" />
-
+                    <img src="~/images/logo.png" class="nav-logo" alt="MooraHub Logo" />
                     <span class="fw-bold">MooraHub</span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
 
-                    <!-- LEFT NAV -->
+                    <!-- LEFT MENU -->
                     <ul class="navbar-nav flex-grow-1">
+
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
@@ -52,15 +45,29 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link fw-semibold text-warning"
-                                   asp-controller="Cart"
-                                   asp-action="Checkout">
+                                <a class="nav-link text-warning fw-semibold"
+                                   asp-controller="Home" asp-action="Checkout">
                                     Checkout
-                                    <span class="ms-1 badge rounded-pill bg-warning text-dark">
-                                        @(Cart.GetCart(Context).Count)
-                                    </span>
                                 </a>
                             </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   asp-controller="Inbox" asp-action="Index">
+                                    Inbox
+                                </a>
+                            </li>
+
+                            @* ADMIN LINK (only visible if email matches) *@
+                            @if (User.Identity.Name == "mosesithabiso9@gmail.com")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-semibold"
+                                       asp-controller="Inbox" asp-action="Admin">
+                                        Admin
+                                    </a>
+                                </li>
+                            }
                         }
 
                         <li class="nav-item">
@@ -68,15 +75,17 @@
                         </li>
                     </ul>
 
-                    <!-- RIGHT NAV -->
+                    <!-- RIGHT MENU -->
                     <div class="d-flex align-items-center gap-2">
-                        <!-- Dark/Light Mode Toggle -->
-                        <button id="modeToggle" class="btn btn-outline-light tech-toggle">
+
+                        <!-- DARK MODE -->
+                        <button id="modeToggle" class="btn btn-outline-light">
                             🌙 / ☀️
                         </button>
 
                         <partial name="_LoginPartial" />
                     </div>
+
                 </div>
             </div>
         </nav>
@@ -100,7 +109,7 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- DARK/LIGHT MODE SCRIPT -->
+    <!-- DARK MODE SCRIPT -->
     <script>
         const toggle = document.getElementById('modeToggle');
 
@@ -110,7 +119,10 @@
 
         toggle.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
-            localStorage.setItem('mode', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+            localStorage.setItem(
+                'mode',
+                document.body.classList.contains('dark-mode') ? 'dark' : 'light'
+            );
         });
     </script>
 

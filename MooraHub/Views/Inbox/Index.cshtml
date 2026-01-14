@@ -1,0 +1,59 @@
+﻿@model List<MooraHub.Models.SupportTicket>
+@{
+    ViewData["Title"] = "Inbox";
+}
+
+<div class="container my-4">
+    <div class="glass-card p-4 mb-4">
+        <h2 class="tech-heading mb-1">Inbox</h2>
+        <p class="mb-0" style="opacity:.85;">Your submitted requests and admin replies appear here.</p>
+        @if (TempData["Ok"] != null)
+        {
+            <div class="alert alert-success mt-3">@TempData["Ok"]</div>
+        }
+        @if (TempData["Err"] != null)
+        {
+            <div class="alert alert-danger mt-3">@TempData["Err"]</div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-card p-4">
+            <p class="mb-0">No requests yet. Go to <a href="/Home/Dashboard">Dashboard</a> or <a href="/Cart/Checkout">Checkout</a>.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var t in Model)
+        {
+            <div class="glass-card p-4 mb-3">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div><strong>Services:</strong> @t.SelectedServices</div>
+                    <div class="price-pill">Total: R@t.TotalAmount</div>
+                </div>
+
+                <hr style="opacity:.2;" />
+
+                <div>
+                    <div class="fw-semibold">Your message:</div>
+                    <div style="opacity:.9;">@t.UserMessage</div>
+                </div>
+
+                <hr style="opacity:.2;" />
+
+                <div>
+                    <div class="fw-semibold">Admin reply:</div>
+                    @if (string.IsNullOrWhiteSpace(t.AdminReply))
+                    {
+                        <div style="opacity:.75;">No reply yet. Please wait.</div>
+                    }
+                    else
+                    {
+                        <div style="opacity:.95;">@t.AdminReply</div>
+                    }
+                </div>
+            </div>
+        }
+    }
+</div>

@@ -1,0 +1,51 @@
+﻿@model List<MooraHub.Models.SupportTicket>
+@{
+    ViewData["Title"] = "Admin Inbox";
+}
+
+<div class="container my-4">
+    <div class="glass-card p-4 mb-4">
+        <h2 class="tech-heading mb-1">Admin Inbox</h2>
+        <p class="mb-0" style="opacity:.85;">Reply to user requests here.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-card p-4">
+            <p class="mb-0">No requests yet.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var t in Model)
+        {
+            <div class="glass-card p-4 mb-3">
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div><strong>User:</strong> @t.UserEmail</div>
+                    <div class="price-pill">Total: R@t.TotalAmount</div>
+                </div>
+
+                <div class="mt-2"><strong>Services:</strong> @t.SelectedServices</div>
+
+                <hr style="opacity:.2;" />
+
+                <div>
+                    <div class="fw-semibold">User message:</div>
+                    <div style="opacity:.9;">@t.UserMessage</div>
+                </div>
+
+                <hr style="opacity:.2;" />
+
+                <form method="post" asp-controller="Inbox" asp-action="Reply">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@t.Id" />
+
+                    <label class="fw-semibold mb-2">Admin reply</label>
+                    <textarea class="mh-textarea" name="reply" placeholder="Reply here...">@t.AdminReply</textarea>
+
+                    <button class="btn btn-primary w-100 mt-3" type="submit">Send Reply</button>
+                </form>
+            </div>
+        }
+    }
+</div>
