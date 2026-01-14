@@ -1,23 +1,33 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace MooraHub.Controllers
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    [AllowAnonymous]
+    public IActionResult Index()
     {
-        public IActionResult Index()
+        // If user is already logged in, send them to Dashboard
+        if (User.Identity != null && User.Identity.IsAuthenticated)
         {
-            return View();
+            return RedirectToAction("Dashboard");
         }
+        // If not logged in, show Home page
+        return View();
+    }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+    [Authorize]
+    public IActionResult Dashboard()
+    {
+        return View();
+    }
+    [Authorize]
+    public IActionResult Checkout()
+    {
+        return View();
+    }
 
-        // NEW: Dashboard Page
-        public IActionResult Dashboard()
-        {
-            return View();
-        }
+    public IActionResult Privacy()
+    {
+        return View();
     }
 }
