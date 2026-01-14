@@ -5,7 +5,9 @@ using MooraHub.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =========================
 // DB
+// =========================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -14,22 +16,83 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Identity
-builder.Services.AddDefaultIdentity<IdentityUser>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>();
+// =========================
+// Identity + Roles
+// =========================
+builder.Services
+    .AddDefaultIdentity<IdentityUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        // Optional password rules (keep default strong rules)
+        // options.Password.RequireDigit = true;
+        // options.Password.RequireUppercase = true;
+        // options.Password.RequireLowercase = true;
+        // options.Password.RequireNonAlphanumeric = true;
+    })
+    .AddRoles<IdentityRole>() // ✅ Enable Roles
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// MVC
+// MVC + RazorPages (Identity UI uses RazorPages)
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
-// ✅ Session + Cart
+// =========================
+// Session + Cart
+// =========================
 builder.Services.AddSession();
 builder.Services.AddScoped<CartSessionService>();
 
 var app = builder.Build();
 
+// =========================
+// Auto-create Admin Role + Admin User
+// =========================
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+
+    const string adminRole = "Admin";
+    const string adminEmail = "thabbisoelseventyseven@gmail.com";
+    const string adminPassword = "Mosesi100#";
+
+    // 1) Ensure role exists
+    if (!await roleManager.RoleExistsAsync(adminRole))
+    {
+        await roleManager.CreateAsync(new IdentityRole(adminRole));
+    }
+
+    // 2) Ensure admin user exists
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        adminUser = new IdentityUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            EmailConfirmed = true
+        };
+
+        var createResult = await userManager.CreateAsync(adminUser, adminPassword);
+
+        // If creation fails, throw readable error for debugging
+        if (!createResult.Succeeded)
+        {
+            var errors = string.Join(" | ", createResult.Errors.Select(e => e.Description));
+            throw new Exception("Admin user creation failed: " + errors);
+        }
+    }
+
+    // 3) Ensure admin user is in Admin role
+    if (!await userManager.IsInRoleAsync(adminUser, adminRole))
+    {
+        await userManager.AddToRoleAsync(adminUser, adminRole);
+    }
+}
+
+// =========================
+// Pipeline
+// =========================
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -43,15 +106,14 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-// ✅ IMPORTANT: Session must be BEFORE routing endpoints usage
-app.UseSession();
+app.UseSession(); // ✅ Session before routing
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// ✅ Default route
+// Default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
