@@ -1,7 +1,5 @@
 ﻿namespace MooraHub.Models;
 
-public record ServiceItem(int Id, string Icon, string Name, int Price);
-
 public static class ServiceCatalog
 {
     public static readonly List<ServiceItem> Items = new()
