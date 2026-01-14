@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using MooraHub.Services
+@inject CartSessionService Cart
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -50,9 +53,12 @@
 
                             <li class="nav-item">
                                 <a class="nav-link fw-semibold text-warning"
-                                   asp-controller="Home"
+                                   asp-controller="Cart"
                                    asp-action="Checkout">
                                     Checkout
+                                    <span class="ms-1 badge rounded-pill bg-warning text-dark">
+                                        @(Cart.GetCart(Context).Count)
+                                    </span>
                                 </a>
                             </li>
                         }

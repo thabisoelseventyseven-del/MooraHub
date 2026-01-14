@@ -1,0 +1,60 @@
+﻿@model List<MooraHub.Models.ServiceItem>
+@{
+    ViewData["Title"] = "Checkout";
+    var total = (int)(ViewBag.Total ?? 0);
+}
+
+<div class="container my-4">
+    <div class="glass-card p-4 mb-4">
+        <h2 class="tech-heading mb-1">Checkout</h2>
+        <p class="mb-0" style="opacity:.85;">Review your selected services. You can remove items anytime.</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="glass-card p-4">
+            <p class="mb-0">Your cart is empty. Go to <a href="/Home/Dashboard">Dashboard</a> and select services.</p>
+        </div>
+    }
+    else
+    {
+        <div class="glass-card p-4 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0">Items</h4>
+
+                <form method="post" asp-controller="Cart" asp-action="Clear">
+                    <button class="btn btn-outline-light btn-sm" type="submit">Clear Cart</button>
+                </form>
+            </div>
+
+            <div class="d-grid gap-2">
+                @for (int i = 0; i < Model.Count; i++)
+                {
+                    <div class="d-flex justify-content-between align-items-center p-3"
+                         style="border-radius:14px; border:1px solid rgba(255,255,255,0.10); background: rgba(0,0,0,0.15);">
+                        <div>
+                            <div style="font-size:1.4rem;">@Model[i].Icon <strong>@Model[i].Name</strong></div>
+                            <div style="opacity:.8;">R@Model[i].Price</div>
+                        </div>
+
+                        <form method="post" asp-controller="Cart" asp-action="Remove">
+                            <input type="hidden" name="index" value="@i" />
+                            <button class="btn btn-danger btn-sm" type="submit">Remove</button>
+                        </form>
+                    </div>
+                }
+            </div>
+
+            <hr style="opacity:.2;" />
+
+            <div class="d-flex justify-content-between">
+                <strong>Total</strong>
+                <strong>R@total</strong>
+            </div>
+
+            <button class="btn btn-success w-100 mt-3" disabled>
+                Pay / Confirm (next step)
+            </button>
+        </div>
+    }
+</div>

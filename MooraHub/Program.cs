@@ -23,6 +23,10 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 // MVC
 builder.Services.AddControllersWithViews();
 
+
+using MooraHub.Services;
+builder.Services.AddSession();
+builder.Services.AddScoped<CartSessionService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -37,6 +41,7 @@ else
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseSession();
 
 app.UseRouting();
 
