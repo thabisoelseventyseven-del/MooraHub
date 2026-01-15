@@ -1,35 +1,27 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 
 namespace MooraHub.Models
 {
+    // EF Core entity must be a class with settable properties
     public class SupportTicket
     {
         public int Id { get; set; }
 
-        [Required]
+        // User identity
         public string UserId { get; set; } = "";
-
-        [Required]
         public string UserEmail { get; set; } = "";
 
-        [Required]
+        // What user selected
         public string SelectedServices { get; set; } = "";
-
         public int TotalAmount { get; set; }
 
-        [Required]
-        [MaxLength(4000)]
+        // Conversation
         public string UserMessage { get; set; } = "";
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        [MaxLength(4000)]
         public string? AdminReply { get; set; }
 
+        // Status
+        public bool IsReplied { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? RepliedAt { get; set; }
-
-        // ✅ This is what your views are calling
-        public bool IsReplied => !string.IsNullOrWhiteSpace(AdminReply);
     }
 }
