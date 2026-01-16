@@ -19,6 +19,17 @@ namespace MooraHub.Controllers
             _userManager = userManager;
         }
 
+        // ✅ FIX: /Inbox now works
+        [HttpGet]
+        public IActionResult Index()
+        {
+            // If admin, go to Admin inbox, else go to My inbox
+            if (User.IsInRole("Admin"))
+                return RedirectToAction(nameof(Admin));
+
+            return RedirectToAction(nameof(My));
+        }
+
         // ✅ USER: list own tickets
         [HttpGet]
         public async Task<IActionResult> My()
@@ -39,22 +50,20 @@ namespace MooraHub.Controllers
         public async Task<IActionResult> Send(string UserMessage, string SelectedServices, int TotalAmount)
         {
             if (string.IsNullOrWhiteSpace(UserMessage))
-                return RedirectToAction("My");
+                return RedirectToAction(nameof(My));
 
             var userId = _userManager.GetUserId(User);
             var email = User.Identity?.Name ?? "";
 
             if (string.IsNullOrWhiteSpace(userId))
-                return RedirectToAction("My");
+                return RedirectToAction(nameof(My));
 
             var ticket = new SupportTicket
             {
-                UserId = userId, // ✅ FIX: required column
+                UserId = userId,
                 UserEmail = email,
-
                 SelectedServices = SelectedServices ?? "",
                 TotalAmount = TotalAmount,
-
                 UserMessage = UserMessage.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
@@ -62,7 +71,7 @@ namespace MooraHub.Controllers
             _db.SupportTickets.Add(ticket);
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("My");
+            return RedirectToAction(nameof(My));
         }
 
         // ✅ ADMIN: view all tickets
@@ -92,7 +101,7 @@ namespace MooraHub.Controllers
 
             await _db.SaveChangesAsync();
 
-            return RedirectToAction("Admin");
+            return RedirectToAction(nameof(Admin));
         }
     }
 }
