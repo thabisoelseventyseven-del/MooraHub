@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
@@ -10,19 +11,22 @@ namespace MooraHub.Controllers
     public class InboxController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public InboxController(ApplicationDbContext db)
+        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
         {
             _db = db;
+            _userManager = userManager;
         }
 
         // ✅ USER: list own tickets
         [HttpGet]
         public async Task<IActionResult> My()
         {
-            var email = User.Identity?.Name ?? "";
+            var userId = _userManager.GetUserId(User) ?? "";
+
             var tickets = await _db.SupportTickets
-                .Where(t => t.UserEmail == email)
+                .Where(t => t.UserId == userId)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 
@@ -32,19 +36,26 @@ namespace MooraHub.Controllers
         // ✅ USER: send message from checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(string userMessage, string selectedServices, int totalAmount)
+        public async Task<IActionResult> Send(string UserMessage, string SelectedServices, int TotalAmount)
         {
-            if (string.IsNullOrWhiteSpace(userMessage))
+            if (string.IsNullOrWhiteSpace(UserMessage))
                 return RedirectToAction("My");
 
+            var userId = _userManager.GetUserId(User);
             var email = User.Identity?.Name ?? "";
+
+            if (string.IsNullOrWhiteSpace(userId))
+                return RedirectToAction("My");
 
             var ticket = new SupportTicket
             {
+                UserId = userId, // ✅ FIX: required column
                 UserEmail = email,
-                SelectedServices = selectedServices ?? "",
-                TotalAmount = totalAmount,
-                UserMessage = userMessage.Trim(),
+
+                SelectedServices = SelectedServices ?? "",
+                TotalAmount = TotalAmount,
+
+                UserMessage = UserMessage.Trim(),
                 CreatedAt = DateTime.UtcNow
             };
 

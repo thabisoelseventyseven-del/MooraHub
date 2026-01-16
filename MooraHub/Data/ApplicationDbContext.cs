@@ -11,7 +11,6 @@ namespace MooraHub.Data
         {
         }
 
-        // ✅ Inbox tickets table
         public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     }
 }
