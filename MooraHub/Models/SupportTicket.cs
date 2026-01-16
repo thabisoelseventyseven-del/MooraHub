@@ -6,11 +6,10 @@ namespace MooraHub.Models
     {
         public int Id { get; set; }
 
-        // ✅ Required by your DB (NOT NULL)
+        // ✅ Required by DB (NOT NULL)
         [Required]
         public string UserId { get; set; } = "";
 
-        // Helpful for display
         public string UserEmail { get; set; } = "";
 
         public string SelectedServices { get; set; } = "";
@@ -18,6 +17,13 @@ namespace MooraHub.Models
 
         [Required]
         public string UserMessage { get; set; } = "";
+
+        // ✅ NEW: Payment method selected on checkout
+        public string PaymentMethod { get; set; } = "EFT";
+
+        // ✅ NEW: Saved file paths (relative to wwwroot)
+        public string? ProofOfPaymentPath { get; set; }
+        public string? VoiceNotePath { get; set; }
 
         // Admin reply
         public string? AdminReply { get; set; }

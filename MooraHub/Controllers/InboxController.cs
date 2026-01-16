@@ -12,18 +12,22 @@ namespace MooraHub.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IWebHostEnvironment _env;
 
-        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
+        public InboxController(
+            ApplicationDbContext db,
+            UserManager<IdentityUser> userManager,
+            IWebHostEnvironment env)
         {
             _db = db;
             _userManager = userManager;
+            _env = env;
         }
 
-        // ✅ FIX: /Inbox now works
+        // ✅ /Inbox works
         [HttpGet]
         public IActionResult Index()
         {
-            // If admin, go to Admin inbox, else go to My inbox
             if (User.IsInRole("Admin"))
                 return RedirectToAction(nameof(Admin));
 
@@ -44,10 +48,16 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ USER: send message from checkout
+        // ✅ USER: send message from checkout (with uploads)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(string UserMessage, string SelectedServices, int TotalAmount)
+        public async Task<IActionResult> Send(
+            string UserMessage,
+            string SelectedServices,
+            int TotalAmount,
+            string PaymentMethod,
+            IFormFile? ProofOfPayment,
+            IFormFile? VoiceNote)
         {
             if (string.IsNullOrWhiteSpace(UserMessage))
                 return RedirectToAction(nameof(My));
@@ -58,6 +68,41 @@ namespace MooraHub.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return RedirectToAction(nameof(My));
 
+            // ✅ Ensure upload folders exist
+            var paymentsDir = Path.Combine(_env.WebRootPath, "uploads", "payments");
+            var voicesDir = Path.Combine(_env.WebRootPath, "uploads", "voices");
+            Directory.CreateDirectory(paymentsDir);
+            Directory.CreateDirectory(voicesDir);
+
+            // ✅ Save ProofOfPayment (optional)
+            string? proofPath = null;
+            if (ProofOfPayment != null && ProofOfPayment.Length > 0)
+            {
+                var ext = Path.GetExtension(ProofOfPayment.FileName);
+                var fileName = $"pay_{Guid.NewGuid():N}{ext}";
+                var fullPath = Path.Combine(paymentsDir, fileName);
+
+                using var stream = new FileStream(fullPath, FileMode.Create);
+                await ProofOfPayment.CopyToAsync(stream);
+
+                // store relative path so you can link it later
+                proofPath = $"/uploads/payments/{fileName}";
+            }
+
+            // ✅ Save VoiceNote (optional)
+            string? voicePath = null;
+            if (VoiceNote != null && VoiceNote.Length > 0)
+            {
+                var ext = Path.GetExtension(VoiceNote.FileName);
+                var fileName = $"voice_{Guid.NewGuid():N}{ext}";
+                var fullPath = Path.Combine(voicesDir, fileName);
+
+                using var stream = new FileStream(fullPath, FileMode.Create);
+                await VoiceNote.CopyToAsync(stream);
+
+                voicePath = $"/uploads/voices/{fileName}";
+            }
+
             var ticket = new SupportTicket
             {
                 UserId = userId,
@@ -65,6 +110,9 @@ namespace MooraHub.Controllers
                 SelectedServices = SelectedServices ?? "",
                 TotalAmount = TotalAmount,
                 UserMessage = UserMessage.Trim(),
+                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod) ? "EFT" : PaymentMethod,
+                ProofOfPaymentPath = proofPath,
+                VoiceNotePath = voicePath,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -86,7 +134,7 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ ADMIN: reply to a ticket
+        // ✅ ADMIN: reply
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "AdminOnly")]

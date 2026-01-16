@@ -7,7 +7,9 @@
 
     <div class="glass-card p-4 mb-4">
         <h2 class="tech-heading mb-1">MooraHub Dashboard</h2>
-        <p class="mb-0" style="opacity:.85;">Choose a service and add it to your cart. Then open Checkout to manage and remove items.</p>
+        <p class="mb-0" style="opacity:.85;">
+            Add multiple services to your cart, then go to Checkout when ready.
+        </p>
     </div>
 
     <div class="row g-4">
@@ -17,11 +19,21 @@
                 <div class="feature-card p-4 h-100 text-center">
                     <div class="feature-icon">@s.Icon</div>
                     <h5 class="mb-1 fw-semibold">@s.Name</h5>
-                    <p class="mb-3" style="opacity:.85;"><p>@($"R{s.Price}")</p>
+                    <p class="mb-3" style="opacity:.85;">R@s.Price</p>
 
-                    <a class="btn btn-primary w-100" href="/Cart/Add?id=@s.Id">
-                        Add to Cart
-                    </a>
+                    <div class="d-grid gap-2">
+                        <!-- Add and stay here -->
+                        <a class="btn btn-primary w-100"
+                           href="/Cart/Add?id=@s.Id&returnTo=/Home/Dashboard">
+                            Add to Cart
+                        </a>
+
+                        <!-- Add and go checkout -->
+                        <a class="btn btn-outline-primary w-100"
+                           href="/Cart/BuyNow?id=@s.Id">
+                            Buy Now
+                        </a>
+                    </div>
                 </div>
             </div>
         }
@@ -36,48 +48,3 @@
     </div>
 
 </div>
-
-<style>
-    .feature-card {
-        border-radius: 18px;
-        min-height: 240px;
-        background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(244,246,249,0.95));
-        transition: all 0.25s ease;
-        border: 1px solid rgba(0,0,0,0.06);
-        box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-    }
-
-    body.dark-mode .feature-card {
-        background: linear-gradient(180deg, rgba(27,27,27,0.85), rgba(18,18,18,0.85));
-        border-color: rgba(255,255,255,0.08);
-        box-shadow: 0 12px 26px rgba(0,0,0,0.35);
-    }
-
-    .feature-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 18px 35px rgba(0,0,0,0.18);
-    }
-
-    .feature-icon {
-        font-size: 4.4rem;
-        margin-bottom: 14px;
-        line-height: 1;
-    }
-
-    body.dark-mode .feature-icon {
-        text-shadow: 0 0 18px rgba(0,150,255,0.45);
-    }
-
-    .glass-card {
-        border-radius: 18px;
-        border: 1px solid rgba(255,255,255,0.12);
-        background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(10px);
-        box-shadow: 0 16px 30px rgba(0,0,0,0.10);
-    }
-
-    body:not(.dark-mode) .glass-card {
-        background: rgba(255,255,255,0.78);
-        border-color: rgba(0,0,0,0.06);
-    }
-</style>

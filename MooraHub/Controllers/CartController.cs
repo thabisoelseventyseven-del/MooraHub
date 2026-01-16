@@ -13,21 +13,33 @@ public class CartController : Controller
         _cart = cart;
     }
 
-    // ✅ Click service -> if not logged in, go login and return here
+    // Add item and stay on Dashboard (so user can add more)
     [HttpGet]
-    public IActionResult Add(int id)
+    public IActionResult Add(int id, string? returnTo = null)
     {
         if (User.Identity?.IsAuthenticated != true)
         {
             return Challenge(new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
-                RedirectUri = Url.Action("Add", "Cart", new { id })
+                RedirectUri = Url.Action("Add", "Cart", new { id, returnTo })
             });
         }
 
         _cart.Add(HttpContext, id);
 
-        // ✅ After adding, go straight to Checkout
+        // default: go back to Dashboard to add more
+        if (!string.IsNullOrWhiteSpace(returnTo))
+            return Redirect(returnTo);
+
+        return RedirectToAction("Dashboard", "Home");
+    }
+
+    // Add item and go straight to checkout
+    [Authorize]
+    [HttpGet]
+    public IActionResult BuyNow(int id)
+    {
+        _cart.Add(HttpContext, id);
         return RedirectToAction("Checkout");
     }
 
@@ -36,16 +48,12 @@ public class CartController : Controller
     public IActionResult Checkout()
     {
         var cart = _cart.GetCart(HttpContext);
-
-        // Keep both options: ViewBag for other views + computed in view
         ViewBag.Total = _cart.Total(HttpContext);
-
         return View(cart);
     }
 
     [Authorize]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Remove(int index)
     {
         _cart.RemoveAt(HttpContext, index);
@@ -54,7 +62,6 @@ public class CartController : Controller
 
     [Authorize]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Clear()
     {
         _cart.Clear(HttpContext);
