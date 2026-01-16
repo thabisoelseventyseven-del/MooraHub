@@ -4,11 +4,10 @@
 }
 
 <div class="container my-4">
-
     <div class="glass-card p-4 mb-4">
         <h2 class="tech-heading mb-1">Admin Inbox</h2>
         <p class="mb-0" style="opacity:.85;">
-            Reply to user requests here. Users will see your reply in their Inbox.
+            Reply to user requests here. (Admin only)
         </p>
     </div>
 
@@ -24,7 +23,7 @@
             @foreach (var t in Model)
             {
                 <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
                         <div class="fw-semibold">Ticket #@t.Id — @t.UserEmail</div>
                         <div style="opacity:.75;">@t.CreatedAt.ToLocalTime()</div>
                     </div>
@@ -35,28 +34,34 @@
                     <div class="mb-3"><strong>Total:</strong> R@t.TotalAmount</div>
 
                     <div class="mb-2"><strong>User message:</strong></div>
-                    <div class="p-3 rounded mb-3" style="background: rgba(0,0,0,0.06);">
+                    <div class="p-3 rounded" style="background: rgba(0,0,0,0.06);">
                         @t.UserMessage
                     </div>
 
-                    <form method="post" asp-controller="Inbox" asp-action="Reply">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@t.Id" />
+                    <div class="mt-3">
+                        <strong>Reply:</strong>
 
-                        <label class="fw-semibold mb-2">Your reply</label>
-                        <textarea class="form-control" name="reply" rows="4" required
-                          placeholder="Reply in Sepedi or English...">@t.AdminReply</textarea>
+                        <form method="post" asp-controller="Inbox" asp-action="Reply" class="mt-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
 
-                        <button class="btn btn-primary mt-3" type="submit">Send Reply</button>
+                            <textarea class="form-control" name="adminReply" rows="3"
+                              placeholder="Type your reply (Sepedi / English)..." required>@t.AdminReply</textarea>
 
-                        @if (t.IsReplied)
-                        {
-                            <span class="ms-3" style="opacity:.8;">Last replied: @t.RepliedAt?.ToLocalTime()</span>
-                        }
-                    </form>
+                            <button class="btn btn-warning mt-2" type="submit">
+                                Save Reply
+                            </button>
+
+                            @if (t.IsReplied)
+                            {
+                                <span class="ms-2" style="opacity:.75;">
+                                    Last replied: @t.RepliedAt?.ToLocalTime()
+                                </span>
+                            }
+                        </form>
+                    </div>
                 </div>
             }
         </div>
     }
-
 </div>

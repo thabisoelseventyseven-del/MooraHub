@@ -13,7 +13,7 @@
 <body>
     <header>
         <!-- TECH NAVBAR -->
-        <nav class="navbar navbar-expand-sm navbar-dark tech-navbar border-bottom mb-4">
+        <nav class="navbar navbar-expand-lg navbar-dark tech-navbar border-bottom mb-4">
             <div class="container-fluid">
 
                 <!-- LOGO -->
@@ -25,28 +25,32 @@
 
                 <button class="navbar-toggler" type="button"
                         data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse">
+                        data-bs-target="#mainNavbar"
+                        aria-controls="mainNavbar"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="collapse navbar-collapse" id="mainNavbar">
 
                     <!-- LEFT MENU -->
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                             </li>
 
+                            <!-- ✅ Checkout is in CartController -->
                             <li class="nav-item">
-                                <a class="nav-link text-warning fw-semibold"
-                                   asp-controller="Home" asp-action="Checkout">
+                                <a class="nav-link fw-semibold text-warning"
+                                   asp-controller="Cart" asp-action="Checkout">
                                     Checkout
                                 </a>
                             </li>
@@ -58,11 +62,11 @@
                                 </a>
                             </li>
 
-                            @* ADMIN LINK (only visible if email matches) *@
-                            @if (User.Identity.Name == "mosesithabiso9@gmail.com")
+                            <!-- ✅ Admin link ONLY for Admin role -->
+                            @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-danger fw-semibold"
+                                    <a class="nav-link fw-semibold text-danger"
                                        asp-controller="Inbox" asp-action="Admin">
                                         Admin
                                     </a>
@@ -79,7 +83,7 @@
                     <div class="d-flex align-items-center gap-2">
 
                         <!-- DARK MODE -->
-                        <button id="modeToggle" class="btn btn-outline-light">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm">
                             🌙 / ☀️
                         </button>
 
@@ -117,7 +121,7 @@
             document.body.classList.add('dark-mode');
         }
 
-        toggle.addEventListener('click', () => {
+        toggle?.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
             localStorage.setItem(
                 'mode',

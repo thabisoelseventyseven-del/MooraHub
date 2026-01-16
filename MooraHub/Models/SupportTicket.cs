@@ -1,27 +1,29 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MooraHub.Models
 {
-    // EF Core entity must be a class with settable properties
     public class SupportTicket
     {
         public int Id { get; set; }
 
-        // User identity
-        public string UserId { get; set; } = "";
+        [Required]
         public string UserEmail { get; set; } = "";
 
-        // What user selected
+        [Required]
         public string SelectedServices { get; set; } = "";
+
         public int TotalAmount { get; set; }
 
-        // Conversation
+        [Required]
         public string UserMessage { get; set; } = "";
+
+        // Admin reply
         public string? AdminReply { get; set; }
 
-        // Status
-        public bool IsReplied { get; set; }
+        public bool IsReplied { get; set; } = false;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         public DateTime? RepliedAt { get; set; }
     }
 }

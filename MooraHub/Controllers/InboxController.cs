@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
 using MooraHub.Models;
-using System.Security.Claims;
 
 namespace MooraHub.Controllers
 {
@@ -17,26 +16,46 @@ namespace MooraHub.Controllers
             _db = db;
         }
 
-        // ✅ /Inbox
-        public IActionResult Index()
-        {
-            return RedirectToAction("My");
-        }
-
-        // ✅ User inbox
+        // ✅ USER: list own tickets
+        [HttpGet]
         public async Task<IActionResult> My()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            var email = User.Identity?.Name ?? "";
             var tickets = await _db.SupportTickets
-                .Where(t => t.UserId == userId)
+                .Where(t => t.UserEmail == email)
                 .OrderByDescending(t => t.CreatedAt)
                 .ToListAsync();
 
             return View(tickets);
         }
 
-        // ✅ Admin inbox
+        // ✅ USER: send message from checkout
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Send(string userMessage, string selectedServices, int totalAmount)
+        {
+            if (string.IsNullOrWhiteSpace(userMessage))
+                return RedirectToAction("My");
+
+            var email = User.Identity?.Name ?? "";
+
+            var ticket = new SupportTicket
+            {
+                UserEmail = email,
+                SelectedServices = selectedServices ?? "",
+                TotalAmount = totalAmount,
+                UserMessage = userMessage.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _db.SupportTickets.Add(ticket);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction("My");
+        }
+
+        // ✅ ADMIN: view all tickets
+        [HttpGet]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Admin()
         {
@@ -47,36 +66,16 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ Send from Checkout
+        // ✅ ADMIN: reply to a ticket
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(string userMessage, string selectedServices, int totalAmount)
-        {
-            var ticket = new SupportTicket
-            {
-                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "",
-                UserEmail = User.Identity?.Name ?? "",
-                SelectedServices = selectedServices ?? "",
-                TotalAmount = totalAmount,
-                UserMessage = userMessage ?? "",
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.SupportTickets.Add(ticket);
-            await _db.SaveChangesAsync();
-
-            return RedirectToAction("My");
-        }
-
-        // ✅ Admin reply
-        [HttpPost]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Reply(int id, string adminReply)
         {
             var ticket = await _db.SupportTickets.FindAsync(id);
             if (ticket == null) return NotFound();
 
-            ticket.AdminReply = adminReply;
+            ticket.AdminReply = adminReply?.Trim();
             ticket.IsReplied = true;
             ticket.RepliedAt = DateTime.UtcNow;
 

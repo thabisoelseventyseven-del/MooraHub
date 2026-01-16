@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
 using MooraHub.Services;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,11 +24,6 @@ builder.Services
     .AddDefaultIdentity<IdentityUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
-        // Optional password rules (keep default strong rules)
-        // options.Password.RequireDigit = true;
-        // options.Password.RequireUppercase = true;
-        // options.Password.RequireLowercase = true;
-        // options.Password.RequireNonAlphanumeric = true;
     })
     .AddRoles<IdentityRole>() // ✅ Enable Roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -47,7 +43,7 @@ var app = builder.Build();
 // =========================
 // Auto-create Admin Role + Admin User
 // =========================
-using (var scope = app.Services.CreateScope())
+await using (var scope = app.Services.CreateAsyncScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
@@ -75,7 +71,6 @@ using (var scope = app.Services.CreateScope())
 
         var createResult = await userManager.CreateAsync(adminUser, adminPassword);
 
-        // If creation fails, throw readable error for debugging
         if (!createResult.Succeeded)
         {
             var errors = string.Join(" | ", createResult.Errors.Select(e => e.Description));
