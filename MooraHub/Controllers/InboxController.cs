@@ -12,13 +12,11 @@ namespace MooraHub.Controllers
     {
         private readonly ApplicationDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IWebHostEnvironment _env;
 
-        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager, IWebHostEnvironment env)
+        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager)
         {
             _db = db;
             _userManager = userManager;
-            _env = env;
         }
 
         // /Inbox -> redirect based on role
@@ -31,7 +29,7 @@ namespace MooraHub.Controllers
             return RedirectToAction(nameof(My));
         }
 
-        // USER inbox
+        // USER: list own tickets
         [HttpGet]
         public async Task<IActionResult> My()
         {
@@ -45,72 +43,55 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // USER send from checkout
+        // USER: open a ticket (marks reply as read)
+        [HttpGet]
+        public async Task<IActionResult> Ticket(int id)
+        {
+            var userId = _userManager.GetUserId(User) ?? "";
+
+            var ticket = await _db.SupportTickets.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            if (ticket == null) return NotFound();
+
+            if (ticket.UserUnreadReply)
+            {
+                ticket.UserUnreadReply = false;
+                await _db.SaveChangesAsync();
+            }
+
+            return View(ticket);
+        }
+
+        // USER: delete one ticket (clear chat)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(
-            string UserMessage,
-            string SelectedServices,
-            int TotalAmount,
-            string PaymentMethod,
-            IFormFile? ProofOfPayment,
-            IFormFile? VoiceNote)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (string.IsNullOrWhiteSpace(UserMessage))
-                return RedirectToAction(nameof(My));
+            var userId = _userManager.GetUserId(User) ?? "";
 
-            var userId = _userManager.GetUserId(User);
-            var email = User.Identity?.Name ?? "";
+            var ticket = await _db.SupportTickets.FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            if (ticket == null) return RedirectToAction(nameof(My));
 
-            if (string.IsNullOrWhiteSpace(userId))
-                return RedirectToAction(nameof(My));
-
-            // Ensure upload folder exists
-            var uploadDir = Path.Combine(_env.WebRootPath, "uploads");
-            Directory.CreateDirectory(uploadDir);
-
-            string? proofPath = null;
-            if (ProofOfPayment != null && ProofOfPayment.Length > 0)
-            {
-                var proofName = $"{Guid.NewGuid():N}_{Path.GetFileName(ProofOfPayment.FileName)}";
-                var proofFull = Path.Combine(uploadDir, proofName);
-                using var fs = new FileStream(proofFull, FileMode.Create);
-                await ProofOfPayment.CopyToAsync(fs);
-                proofPath = "/uploads/" + proofName;
-            }
-
-            string? voicePath = null;
-            if (VoiceNote != null && VoiceNote.Length > 0)
-            {
-                var voiceName = $"{Guid.NewGuid():N}_{Path.GetFileName(VoiceNote.FileName)}";
-                var voiceFull = Path.Combine(uploadDir, voiceName);
-                using var fs = new FileStream(voiceFull, FileMode.Create);
-                await VoiceNote.CopyToAsync(fs);
-                voicePath = "/uploads/" + voiceName;
-            }
-
-            var ticket = new SupportTicket
-            {
-                UserId = userId,
-                UserEmail = email,
-                SelectedServices = SelectedServices ?? "",
-                TotalAmount = TotalAmount,
-                UserMessage = UserMessage.Trim(),
-                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod)
-                    ? "CashSend (Capitec) - 0721769099"
-                    : PaymentMethod,
-                ProofOfPaymentPath = proofPath,
-                VoiceNotePath = voicePath,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.SupportTickets.Add(ticket);
+            _db.SupportTickets.Remove(ticket);
             await _db.SaveChangesAsync();
 
             return RedirectToAction(nameof(My));
         }
 
-        // ADMIN inbox
+        // USER: clear all tickets
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearAll()
+        {
+            var userId = _userManager.GetUserId(User) ?? "";
+
+            var myTickets = await _db.SupportTickets.Where(t => t.UserId == userId).ToListAsync();
+            _db.SupportTickets.RemoveRange(myTickets);
+            await _db.SaveChangesAsync();
+
+            return RedirectToAction(nameof(My));
+        }
+
+        // ADMIN: view all tickets
         [HttpGet]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Admin()
@@ -122,11 +103,27 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ ADMIN reply (NOW supports voice note upload)
+        // ADMIN: update status quickly (New/InProgress/Completed)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> Reply(int id, string adminReply, IFormFile? AdminVoiceNote)
+        public async Task<IActionResult> SetStatus(int id, string status)
+        {
+            var ticket = await _db.SupportTickets.FindAsync(id);
+            if (ticket == null) return NotFound();
+
+            var allowed = new[] { "New", "InProgress", "Completed" };
+            ticket.Status = allowed.Contains(status) ? status : "New";
+
+            await _db.SaveChangesAsync();
+            return RedirectToAction(nameof(Admin));
+        }
+
+        // ADMIN: reply to a ticket (marks unread for user)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = "AdminOnly")]
+        public async Task<IActionResult> Reply(int id, string adminReply)
         {
             var ticket = await _db.SupportTickets.FindAsync(id);
             if (ticket == null) return NotFound();
@@ -135,20 +132,12 @@ namespace MooraHub.Controllers
             ticket.IsReplied = true;
             ticket.RepliedAt = DateTime.UtcNow;
 
-            // ✅ Save admin voice note (optional)
-            if (AdminVoiceNote != null && AdminVoiceNote.Length > 0)
-            {
-                var adminVoiceDir = Path.Combine(_env.WebRootPath, "uploads", "admin-voice");
-                Directory.CreateDirectory(adminVoiceDir);
+            // ✅ user badge
+            ticket.UserUnreadReply = true;
 
-                var fileName = $"{Guid.NewGuid():N}_{Path.GetFileName(AdminVoiceNote.FileName)}";
-                var fullPath = Path.Combine(adminVoiceDir, fileName);
-
-                using var fs = new FileStream(fullPath, FileMode.Create);
-                await AdminVoiceNote.CopyToAsync(fs);
-
-                ticket.AdminVoiceNotePath = "/uploads/admin-voice/" + fileName;
-            }
+            // If admin replied, default status becomes InProgress (feel free)
+            if (ticket.Status == "New")
+                ticket.Status = "InProgress";
 
             await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Admin));

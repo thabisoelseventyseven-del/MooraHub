@@ -1,0 +1,53 @@
+﻿@model MooraHub.Models.SupportTicket
+@{
+    ViewData["Title"] = "Ticket";
+}
+
+<div class="container my-4">
+
+    <div class="glass-card p-4 mb-4">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            <div class="fw-semibold">Request #@Model.Id</div>
+            <div style="opacity:.75;">@Model.CreatedAt.ToLocalTime()</div>
+        </div>
+
+        <hr style="opacity:.2;" />
+
+        <div class="mb-2"><strong>Services:</strong> @Model.SelectedServices</div>
+        <div class="mb-2"><strong>Total:</strong> @($"R{Model.TotalAmount}")</div>
+
+        <div class="mb-3">
+            <strong>Status:</strong>
+            <span class="badge bg-secondary">@Model.Status</span>
+        </div>
+
+        <div class="mb-2"><strong>Your message:</strong></div>
+        <div class="p-3 rounded" style="background: rgba(0,0,0,0.06);">
+            @Model.UserMessage
+        </div>
+
+        <div class="mt-4">
+            <strong>Admin reply:</strong>
+
+            @if (Model.IsReplied)
+            {
+                <div class="p-3 rounded mt-2"
+                     style="background: rgba(0,200,140,0.10); border:1px solid rgba(0,200,140,0.25);">
+                    @Model.AdminReply
+                    <div class="mt-2" style="opacity:.75; font-size:.9rem;">
+                        Replied: @Model.RepliedAt?.ToLocalTime()
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mt-2" style="opacity:.75;">Waiting for admin reply...</div>
+            }
+        </div>
+
+        <div class="mt-4">
+            <a class="btn btn-outline-primary" asp-controller="Inbox" asp-action="My">Back</a>
+        </div>
+    </div>
+
+</div>

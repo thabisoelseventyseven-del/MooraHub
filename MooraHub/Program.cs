@@ -24,24 +24,35 @@ builder.Services
     {
         options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddRoles<IdentityRole>()
+    .AddRoles<IdentityRole>() // ✅ Roles enabled
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// ✅ Admin-only policy
+// ✅ Admin-only policy (used by [Authorize(Policy="AdminOnly")])
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
+// =========================
 // MVC + RazorPages
+// =========================
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 // =========================
-// Session + Cart
+// Session + Services
 // =========================
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(4);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddScoped<CartSessionService>();
+
+// ✅ Upgrade #1 badge helper service (safe even if you don’t use it yet)
+builder.Services.AddScoped<InboxBadgeService>();
 
 var app = builder.Build();
 
@@ -57,9 +68,18 @@ using (var scope = app.Services.CreateScope())
     const string adminEmail = "thabisoelseventyseven@gmail.com";
     const string adminPassword = "Mosesi100#";
 
+    // 1) Ensure role exists
     if (!await roleManager.RoleExistsAsync(adminRole))
-        await roleManager.CreateAsync(new IdentityRole(adminRole));
+    {
+        var roleResult = await roleManager.CreateAsync(new IdentityRole(adminRole));
+        if (!roleResult.Succeeded)
+        {
+            var errors = string.Join(" | ", roleResult.Errors.Select(e => e.Description));
+            throw new Exception("Admin role creation failed: " + errors);
+        }
+    }
 
+    // 2) Ensure admin user exists
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
@@ -78,8 +98,16 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
+    // 3) Ensure admin user is in Admin role
     if (!await userManager.IsInRoleAsync(adminUser, adminRole))
-        await userManager.AddToRoleAsync(adminUser, adminRole);
+    {
+        var addRoleResult = await userManager.AddToRoleAsync(adminUser, adminRole);
+        if (!addRoleResult.Succeeded)
+        {
+            var errors = string.Join(" | ", addRoleResult.Errors.Select(e => e.Description));
+            throw new Exception("Adding Admin user to role failed: " + errors);
+        }
+    }
 }
 
 // =========================
@@ -98,6 +126,7 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// ✅ Session must be BEFORE routing endpoints get used
 app.UseSession();
 
 app.UseRouting();

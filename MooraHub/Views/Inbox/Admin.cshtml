@@ -1,14 +1,19 @@
 ﻿@model List<MooraHub.Models.SupportTicket>
 @{
     ViewData["Title"] = "Admin Inbox";
+    string StatusLabel(string s) => s switch
+    {
+        "New" => "bg-danger",
+        "InProgress" => "bg-warning text-dark",
+        "Completed" => "bg-success",
+        _ => "bg-secondary"
+    };
 }
 
 <div class="container my-4">
     <div class="glass-card p-4 mb-4">
         <h2 class="tech-heading mb-1">Admin Inbox</h2>
-        <p class="mb-0" style="opacity:.85;">
-            Messages only. Reply with text + optional voice note.
-        </p>
+        <p class="mb-0" style="opacity:.85;">Reply to user requests + manage status. (Admin only)</p>
     </div>
 
     @if (!Model.Any())
@@ -31,121 +36,55 @@
                     <hr style="opacity:.2;" />
 
                     <div class="mb-2"><strong>Services:</strong> @t.SelectedServices</div>
-                    <div class="mb-3"><strong>Total:</strong> R@t.TotalAmount</div>
+                    <div class="mb-2"><strong>Total:</strong> @($"R{t.TotalAmount}")</div>
+
+                    <div class="mb-3">
+                        <strong>Status:</strong>
+                        <span class="badge @StatusLabel(t.Status)">@t.Status</span>
+
+                        <form method="post" asp-controller="Inbox" asp-action="SetStatus" class="mt-2 d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@t.Id" />
+
+                            <select class="form-select" name="status">
+                                <option value="New" selected="@(t.Status == "New")">New</option>
+                                <option value="InProgress" selected="@(t.Status == "InProgress")">In Progress</option>
+                                <option value="Completed" selected="@(t.Status == "Completed")">Completed</option>
+                            </select>
+
+                            <button class="btn btn-outline-primary" type="submit">Update</button>
+                        </form>
+                    </div>
 
                     <div class="mb-2"><strong>User message:</strong></div>
                     <div class="p-3 rounded" style="background: rgba(0,0,0,0.06);">
                         @t.UserMessage
                     </div>
 
-                    @if (!string.IsNullOrWhiteSpace(t.AdminVoiceNotePath))
-                    {
-                        <div class="mt-3">
-                            <strong>Current voice note:</strong>
-                            <audio controls class="w-100 mt-2">
-                                <source src="@t.AdminVoiceNotePath" />
-                            </audio>
-                        </div>
-                    }
-
                     <div class="mt-3">
-                        <strong>Reply (Text + Voice note):</strong>
+                        <strong>Reply:</strong>
 
-                        <form method="post" enctype="multipart/form-data"
-                              asp-controller="Inbox" asp-action="Reply" class="mt-2">
+                        <form method="post" asp-controller="Inbox" asp-action="Reply" class="mt-2">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@t.Id" />
 
                             <textarea class="form-control" name="adminReply" rows="3"
                               placeholder="Type your reply (Sepedi / English)..." required>@t.AdminReply</textarea>
 
-                            <!-- Hidden file input will be filled by recorder -->
-                            <input type="file" name="voiceNote" class="form-control mt-2" accept="audio/*" />
-
-                            <div class="d-flex gap-2 mt-2">
-                                <button type="button" class="btn btn-outline-primary"
-                                        onclick="startRec(@t.Id)">
-                                    Start Voice Note
-                                </button>
-
-                                <button type="button" class="btn btn-outline-danger"
-                                        onclick="stopRec(@t.Id)">
-                                    Stop
-                                </button>
-
-                                <button class="btn btn-warning" type="submit">
-                                    Save Reply
-                                </button>
-                            </div>
+                            <button class="btn btn-warning mt-2" type="submit">
+                                Save Reply (marks unread for user)
+                            </button>
 
                             @if (t.IsReplied)
                             {
-                                <div class="mt-2" style="opacity:.75;">
+                                <span class="ms-2" style="opacity:.75;">
                                     Last replied: @t.RepliedAt?.ToLocalTime()
-                                </div>
+                                </span>
                             }
                         </form>
-
-                        <small class="d-block mt-2" style="opacity:.75;">
-                            If recording does not work in your browser, you can still upload an audio file manually.
-                        </small>
                     </div>
                 </div>
             }
         </div>
     }
 </div>
-
-@section Scripts {
-    <script>
-        // One recorder per ticket row
-        const recorders = {};
-
-        async function startRec(ticketId) {
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert("Microphone recording not supported in this browser.");
-                return;
-            }
-
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const mediaRecorder = new MediaRecorder(stream);
-            const chunks = [];
-
-            mediaRecorder.ondataavailable = e => {
-                if (e.data.size > 0) chunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: "audio/webm" });
-                const file = new File([blob], `voice_ticket_${ticketId}.webm`, { type: "audio/webm" });
-
-                // Find the correct form (inside this ticket card)
-                const card = document.querySelector(`input[name="id"][value="${ticketId}"]`)?.closest("form");
-                if (!card) return;
-
-                const fileInput = card.querySelector('input[type="file"][name="voiceNote"]');
-                if (!fileInput) return;
-
-                // Put the recorded file into the file input
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                fileInput.files = dt.files;
-
-                // stop mic tracks
-                stream.getTracks().forEach(t => t.stop());
-            };
-
-            recorders[ticketId] = mediaRecorder;
-            mediaRecorder.start();
-            alert("Recording started...");
-        }
-
-        function stopRec(ticketId) {
-            const rec = recorders[ticketId];
-            if (rec && rec.state !== "inactive") {
-                rec.stop();
-                alert("Recording stopped. Now click 'Save Reply' to send.");
-            }
-        }
-    </script>
-}
