@@ -6,6 +6,9 @@ public class HomeController : Controller
     [AllowAnonymous]
     public IActionResult Index()
     {
+        if (User.IsInRole("Admin"))
+            return RedirectToAction("Admin", "Inbox");
+
         // If user is already logged in, send them to Dashboard
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {

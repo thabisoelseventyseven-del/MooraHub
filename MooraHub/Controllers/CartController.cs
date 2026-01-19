@@ -13,7 +13,7 @@ public class CartController : Controller
         _cart = cart;
     }
 
-    // ✅ Add and stay on dashboard
+    // Add to cart and stay on dashboard (so user can add more)
     [HttpGet]
     public IActionResult Add(int id)
     {
@@ -26,10 +26,12 @@ public class CartController : Controller
         }
 
         _cart.Add(HttpContext, id);
-        return RedirectToAction("Dashboard", "Home"); // ✅ stay there
+
+        // ✅ Stay on Dashboard so user can add more services
+        return RedirectToAction("Dashboard", "Home");
     }
 
-    // ✅ BuyNow: go straight to checkout
+    // Buy now -> add and go straight to checkout
     [HttpGet]
     public IActionResult BuyNow(int id)
     {
@@ -42,6 +44,8 @@ public class CartController : Controller
         }
 
         _cart.Add(HttpContext, id);
+
+        // ✅ Go straight to checkout
         return RedirectToAction("Checkout");
     }
 

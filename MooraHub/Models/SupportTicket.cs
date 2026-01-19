@@ -6,29 +6,33 @@ namespace MooraHub.Models
     {
         public int Id { get; set; }
 
-        // ✅ Required by DB (NOT NULL)
+        // ✅ Required (NOT NULL in DB)
         [Required]
         public string UserId { get; set; } = "";
 
         public string UserEmail { get; set; } = "";
 
         public string SelectedServices { get; set; } = "";
+
         public int TotalAmount { get; set; }
 
         [Required]
         public string UserMessage { get; set; } = "";
 
-        // ✅ NEW: Payment method selected on checkout
-        public string PaymentMethod { get; set; } = "EFT";
+        // ✅ Payment info
+        public string PaymentMethod { get; set; } = "CashSend (Capitec) - 0721769099";
 
-        // ✅ NEW: Saved file paths (relative to wwwroot)
+        // ✅ Uploads (paths saved in DB)
         public string? ProofOfPaymentPath { get; set; }
         public string? VoiceNotePath { get; set; }
 
-        // Admin reply
+        // ✅ Admin reply
         public string? AdminReply { get; set; }
         public bool IsReplied { get; set; }
         public DateTime? RepliedAt { get; set; }
+
+        // ✅ Admin voice note (optional)
+        public string? AdminVoiceNotePath { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

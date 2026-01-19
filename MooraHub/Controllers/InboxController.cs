@@ -14,17 +14,14 @@ namespace MooraHub.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IWebHostEnvironment _env;
 
-        public InboxController(
-            ApplicationDbContext db,
-            UserManager<IdentityUser> userManager,
-            IWebHostEnvironment env)
+        public InboxController(ApplicationDbContext db, UserManager<IdentityUser> userManager, IWebHostEnvironment env)
         {
             _db = db;
             _userManager = userManager;
             _env = env;
         }
 
-        // ✅ /Inbox works
+        // /Inbox -> redirect based on role
         [HttpGet]
         public IActionResult Index()
         {
@@ -34,7 +31,7 @@ namespace MooraHub.Controllers
             return RedirectToAction(nameof(My));
         }
 
-        // ✅ USER: list own tickets
+        // USER inbox
         [HttpGet]
         public async Task<IActionResult> My()
         {
@@ -48,7 +45,7 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ USER: send message from checkout (with uploads)
+        // USER send from checkout
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(
@@ -68,39 +65,28 @@ namespace MooraHub.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return RedirectToAction(nameof(My));
 
-            // ✅ Ensure upload folders exist
-            var paymentsDir = Path.Combine(_env.WebRootPath, "uploads", "payments");
-            var voicesDir = Path.Combine(_env.WebRootPath, "uploads", "voices");
-            Directory.CreateDirectory(paymentsDir);
-            Directory.CreateDirectory(voicesDir);
+            // Ensure upload folder exists
+            var uploadDir = Path.Combine(_env.WebRootPath, "uploads");
+            Directory.CreateDirectory(uploadDir);
 
-            // ✅ Save ProofOfPayment (optional)
             string? proofPath = null;
             if (ProofOfPayment != null && ProofOfPayment.Length > 0)
             {
-                var ext = Path.GetExtension(ProofOfPayment.FileName);
-                var fileName = $"pay_{Guid.NewGuid():N}{ext}";
-                var fullPath = Path.Combine(paymentsDir, fileName);
-
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await ProofOfPayment.CopyToAsync(stream);
-
-                // store relative path so you can link it later
-                proofPath = $"/uploads/payments/{fileName}";
+                var proofName = $"{Guid.NewGuid():N}_{Path.GetFileName(ProofOfPayment.FileName)}";
+                var proofFull = Path.Combine(uploadDir, proofName);
+                using var fs = new FileStream(proofFull, FileMode.Create);
+                await ProofOfPayment.CopyToAsync(fs);
+                proofPath = "/uploads/" + proofName;
             }
 
-            // ✅ Save VoiceNote (optional)
             string? voicePath = null;
             if (VoiceNote != null && VoiceNote.Length > 0)
             {
-                var ext = Path.GetExtension(VoiceNote.FileName);
-                var fileName = $"voice_{Guid.NewGuid():N}{ext}";
-                var fullPath = Path.Combine(voicesDir, fileName);
-
-                using var stream = new FileStream(fullPath, FileMode.Create);
-                await VoiceNote.CopyToAsync(stream);
-
-                voicePath = $"/uploads/voices/{fileName}";
+                var voiceName = $"{Guid.NewGuid():N}_{Path.GetFileName(VoiceNote.FileName)}";
+                var voiceFull = Path.Combine(uploadDir, voiceName);
+                using var fs = new FileStream(voiceFull, FileMode.Create);
+                await VoiceNote.CopyToAsync(fs);
+                voicePath = "/uploads/" + voiceName;
             }
 
             var ticket = new SupportTicket
@@ -110,7 +96,9 @@ namespace MooraHub.Controllers
                 SelectedServices = SelectedServices ?? "",
                 TotalAmount = TotalAmount,
                 UserMessage = UserMessage.Trim(),
-                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod) ? "EFT" : PaymentMethod,
+                PaymentMethod = string.IsNullOrWhiteSpace(PaymentMethod)
+                    ? "CashSend (Capitec) - 0721769099"
+                    : PaymentMethod,
                 ProofOfPaymentPath = proofPath,
                 VoiceNotePath = voicePath,
                 CreatedAt = DateTime.UtcNow
@@ -122,7 +110,7 @@ namespace MooraHub.Controllers
             return RedirectToAction(nameof(My));
         }
 
-        // ✅ ADMIN: view all tickets
+        // ADMIN inbox
         [HttpGet]
         [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Admin()
@@ -134,11 +122,11 @@ namespace MooraHub.Controllers
             return View(tickets);
         }
 
-        // ✅ ADMIN: reply
+        // ✅ ADMIN reply (NOW supports voice note upload)
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Policy = "AdminOnly")]
-        public async Task<IActionResult> Reply(int id, string adminReply)
+        public async Task<IActionResult> Reply(int id, string adminReply, IFormFile? AdminVoiceNote)
         {
             var ticket = await _db.SupportTickets.FindAsync(id);
             if (ticket == null) return NotFound();
@@ -147,8 +135,22 @@ namespace MooraHub.Controllers
             ticket.IsReplied = true;
             ticket.RepliedAt = DateTime.UtcNow;
 
-            await _db.SaveChangesAsync();
+            // ✅ Save admin voice note (optional)
+            if (AdminVoiceNote != null && AdminVoiceNote.Length > 0)
+            {
+                var adminVoiceDir = Path.Combine(_env.WebRootPath, "uploads", "admin-voice");
+                Directory.CreateDirectory(adminVoiceDir);
 
+                var fileName = $"{Guid.NewGuid():N}_{Path.GetFileName(AdminVoiceNote.FileName)}";
+                var fullPath = Path.Combine(adminVoiceDir, fileName);
+
+                using var fs = new FileStream(fullPath, FileMode.Create);
+                await AdminVoiceNote.CopyToAsync(fs);
+
+                ticket.AdminVoiceNotePath = "/uploads/admin-voice/" + fileName;
+            }
+
+            await _db.SaveChangesAsync();
             return RedirectToAction(nameof(Admin));
         }
     }

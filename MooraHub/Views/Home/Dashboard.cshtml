@@ -20,7 +20,7 @@
                     <h5 class="mb-1 fw-semibold">@s.Name</h5>
 
                     <!-- ✅ PRICE FIX -->
-                    <div class="price-pill mx-auto mb-3">R@s.Price</div>
+                    <div class="price-pill mt-2">@($"R{s.Price}")</div>>
 
                     <!-- Add to cart stays on dashboard -->
                     <a class="btn btn-primary w-100 mb-2" asp-controller="Cart" asp-action="Add" asp-route-id="@s.Id">

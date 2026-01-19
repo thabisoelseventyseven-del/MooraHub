@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using MooraHub.Data;
 using MooraHub.Services;
-using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,10 +24,16 @@ builder.Services
     {
         options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddRoles<IdentityRole>() // ✅ Enable Roles
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// MVC + RazorPages (Identity UI uses RazorPages)
+// ✅ Admin-only policy
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+});
+
+// MVC + RazorPages
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -37,32 +42,24 @@ builder.Services.AddRazorPages();
 // =========================
 builder.Services.AddSession();
 builder.Services.AddScoped<CartSessionService>();
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-});
 
 var app = builder.Build();
 
 // =========================
-// Auto-create Admin Role + Admin User
+// Seed Admin Role + Admin User
 // =========================
-await using (var scope = app.Services.CreateAsyncScope())
+using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
     const string adminRole = "Admin";
-    const string adminEmail = "thabbisoelseventyseven@gmail.com";
+    const string adminEmail = "thabisoelseventyseven@gmail.com";
     const string adminPassword = "Mosesi100#";
 
-    // 1) Ensure role exists
     if (!await roleManager.RoleExistsAsync(adminRole))
-    {
         await roleManager.CreateAsync(new IdentityRole(adminRole));
-    }
 
-    // 2) Ensure admin user exists
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
     if (adminUser == null)
     {
@@ -74,7 +71,6 @@ await using (var scope = app.Services.CreateAsyncScope())
         };
 
         var createResult = await userManager.CreateAsync(adminUser, adminPassword);
-
         if (!createResult.Succeeded)
         {
             var errors = string.Join(" | ", createResult.Errors.Select(e => e.Description));
@@ -82,11 +78,8 @@ await using (var scope = app.Services.CreateAsyncScope())
         }
     }
 
-    // 3) Ensure admin user is in Admin role
     if (!await userManager.IsInRoleAsync(adminUser, adminRole))
-    {
         await userManager.AddToRoleAsync(adminUser, adminRole);
-    }
 }
 
 // =========================
@@ -105,14 +98,13 @@ else
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseSession(); // ✅ Session before routing
+app.UseSession();
 
 app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
