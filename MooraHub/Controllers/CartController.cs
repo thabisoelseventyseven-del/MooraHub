@@ -13,32 +13,34 @@ public class CartController : Controller
         _cart = cart;
     }
 
-    // Add item and stay on Dashboard (so user can add more)
+    // ✅ Add and stay on dashboard
     [HttpGet]
-    public IActionResult Add(int id, string? returnTo = null)
+    public IActionResult Add(int id)
     {
         if (User.Identity?.IsAuthenticated != true)
         {
             return Challenge(new Microsoft.AspNetCore.Authentication.AuthenticationProperties
             {
-                RedirectUri = Url.Action("Add", "Cart", new { id, returnTo })
+                RedirectUri = Url.Action("Add", "Cart", new { id })
             });
         }
 
         _cart.Add(HttpContext, id);
-
-        // default: go back to Dashboard to add more
-        if (!string.IsNullOrWhiteSpace(returnTo))
-            return Redirect(returnTo);
-
-        return RedirectToAction("Dashboard", "Home");
+        return RedirectToAction("Dashboard", "Home"); // ✅ stay there
     }
 
-    // Add item and go straight to checkout
-    [Authorize]
+    // ✅ BuyNow: go straight to checkout
     [HttpGet]
     public IActionResult BuyNow(int id)
     {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return Challenge(new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                RedirectUri = Url.Action("BuyNow", "Cart", new { id })
+            });
+        }
+
         _cart.Add(HttpContext, id);
         return RedirectToAction("Checkout");
     }

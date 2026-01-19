@@ -1,4 +1,6 @@
-﻿namespace MooraHub.Models;
+﻿using System.Linq;
+
+namespace MooraHub.Models;
 
 public static class ServiceCatalog
 {

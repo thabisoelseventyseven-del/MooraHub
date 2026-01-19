@@ -10,12 +10,13 @@ public class CartSessionService
     public List<ServiceItem> GetCart(HttpContext http)
     {
         var json = http.Session.GetString(Key);
+
         return string.IsNullOrWhiteSpace(json)
             ? new List<ServiceItem>()
             : JsonSerializer.Deserialize<List<ServiceItem>>(json) ?? new List<ServiceItem>();
     }
 
-    public void SaveCart(HttpContext http, List<ServiceItem> cart)
+    private void SaveCart(HttpContext http, List<ServiceItem> cart)
     {
         http.Session.SetString(Key, JsonSerializer.Serialize(cart));
     }
@@ -34,11 +35,24 @@ public class CartSessionService
     {
         var cart = GetCart(http);
         if (index < 0 || index >= cart.Count) return;
+
         cart.RemoveAt(index);
         SaveCart(http, cart);
     }
 
-    public void Clear(HttpContext http) => http.Session.Remove(Key);
+    public void Clear(HttpContext http)
+    {
+        http.Session.Remove(Key);
+    }
 
-    public int Total(HttpContext http) => GetCart(http).Sum(x => x.Price);
+    public int Total(HttpContext http)
+    {
+        return GetCart(http).Sum(x => x.Price);
+    }
+
+    // ✅ NEW: for navbar badge
+    public int Count(HttpContext http)
+    {
+        return GetCart(http).Count;
+    }
 }
