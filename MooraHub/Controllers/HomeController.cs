@@ -3,6 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 public class HomeController : Controller
 {
+    public IActionResult About()
+    {
+        return View();
+    }
+
     [AllowAnonymous]
     public IActionResult Index()
     {

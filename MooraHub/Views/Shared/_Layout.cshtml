@@ -1,4 +1,8 @@
 ﻿@using MooraHub.Services
+@using Microsoft.AspNetCore.Identity
+@using MooraHub.Data
+@using System.Linq
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,11 +17,9 @@
 
 <body>
     <header>
-        <!-- NAVBAR -->
         <nav class="navbar navbar-expand-lg navbar-dark tech-navbar border-bottom mb-4">
             <div class="container-fluid">
 
-                <!-- LOGO -->
                 <a class="navbar-brand d-flex align-items-center gap-2"
                    asp-controller="Home" asp-action="Index">
                     <img src="~/images/logo.png" class="nav-logo" alt="MooraHub Logo" />
@@ -35,7 +37,6 @@
 
                 <div class="collapse navbar-collapse" id="mainNavbar">
 
-                    <!-- LEFT MENU -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
@@ -45,9 +46,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Home" asp-action="Dashboard">
-                                    Dashboard
-                                </a>
+                                <a class="nav-link" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
                             </li>
 
                             <!-- CHECKOUT + CART BADGE -->
@@ -58,17 +57,44 @@
                                     Checkout
 
                                     @{
-                                        var cartService =
-                                        Context.RequestServices.GetService(typeof(CartSessionService))
-                                        as CartSessionService;
-
+                                        var cartService = Context.RequestServices.GetService(typeof(CartSessionService)) as CartSessionService;
                                         var cartCount = cartService?.Count(Context) ?? 0;
                                     }
 
-                                    <span class="badge rounded-pill bg-danger"
-                                          style="font-size:.75rem;">
-                                        @cartCount
-                                    </span>
+                                    @if (cartCount > 0)
+                                    {
+                                        <span class="badge rounded-pill bg-danger" style="font-size:.75rem;">
+                                            @cartCount
+                                        </span>
+                                    }
+                                </a>
+                            </li>
+
+                            <!-- INBOX + UNREAD REPLY BADGE -->
+                            <li class="nav-item">
+                                <a class="nav-link d-flex align-items-center gap-2"
+                                   asp-controller="Inbox" asp-action="Index">
+                                    Inbox
+
+                                    @{
+                                        var userManager = Context.RequestServices.GetService(typeof(UserManager<IdentityUser>)) as UserManager<IdentityUser>;
+                                        var db = Context.RequestServices.GetService(typeof(ApplicationDbContext)) as ApplicationDbContext;
+
+                                        var myUserId = userManager?.GetUserId(User);
+                                        var unreadCount = 0;
+
+                                        if (!string.IsNullOrWhiteSpace(myUserId) && db != null)
+                                        {
+                                            unreadCount = db.SupportTickets.Count(t => t.UserId == myUserId && t.UserUnreadReply);
+                                        }
+                                    }
+
+                                    @if (unreadCount > 0)
+                                    {
+                                        <span class="badge rounded-pill bg-danger" style="font-size:.75rem;">
+                                            @unreadCount
+                                        </span>
+                                    }
                                 </a>
                             </li>
 
@@ -82,41 +108,27 @@
                                     </a>
                                 </li>
                             }
-
-                            <!-- INBOX -->
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="Inbox" asp-action="Index">
-                                    Inbox
-                                </a>
-                            </li>
                         }
 
+                        <!-- ✅ Replace Privacy with About -->
                         <li class="nav-item">
-                            <a class="nav-link"
-                               asp-controller="Home" asp-action="Privacy">
-                                Privacy
-                            </a>
+                            <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
                         </li>
                     </ul>
 
-                    <!-- RIGHT MENU -->
                     <div class="d-flex align-items-center gap-2">
-
-                        <!-- DARK MODE -->
-                        <button id="modeToggle"
-                                class="btn btn-outline-light btn-sm">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm">
                             🌙 / ☀️
                         </button>
 
                         <partial name="_LoginPartial" />
                     </div>
+
                 </div>
             </div>
         </nav>
     </header>
 
-    <!-- PAGE CONTENT -->
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -126,7 +138,7 @@
     <footer class="border-top footer text-muted mt-5">
         <div class="container text-center">
             &copy; 2026 - MooraHub -
-            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <a asp-controller="Home" asp-action="About">About</a>
         </div>
     </footer>
 
@@ -134,7 +146,6 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
-    <!-- DARK MODE SCRIPT -->
     <script>
         const toggle = document.getElementById('modeToggle');
 
@@ -146,9 +157,7 @@
             document.body.classList.toggle('dark-mode');
             localStorage.setItem(
                 'mode',
-                document.body.classList.contains('dark-mode')
-                    ? 'dark'
-                    : 'light'
+                document.body.classList.contains('dark-mode') ? 'dark' : 'light'
             );
         });
     </script>
