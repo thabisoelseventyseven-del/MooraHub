@@ -5,157 +5,173 @@
 <div class="container my-4">
 
     <!-- HERO -->
-    <div class="glass-card p-4 p-md-5 mb-4">
-        <h1 class="tech-heading mb-2">About MooraHub</h1>
+    <div class="glass-card p-4 mb-4">
+        <h2 class="tech-heading mb-1">About MooraHub</h2>
         <p class="mb-0" style="opacity:.85;">
-            We help students and job seekers with professional documents and applications — fast, clean, and reliable.
+            We help people in South Africa with CVs, university applications, templates, and business documents — fast and professional.
         </p>
     </div>
 
+    <!-- WORK SHOWCASE -->
     <div class="row g-4">
 
-        <!-- ABOUT -->
-        <div class="col-lg-6">
+        <!-- IMAGES -->
+        <div class="col-12 col-lg-6">
             <div class="glass-card p-4 h-100">
-                <h3 class="mb-3">What we do</h3>
-                <ul class="mb-0" style="line-height:1.9;">
-                    <li>CV writing (PDF + Word)</li>
-                    <li>University applications support</li>
-                    <li>Templates (business / portfolio / reports)</li>
-                    <li>Guidance and admin support via Inbox</li>
-                </ul>
-            </div>
-        </div>
+                <h4 class="mb-3">Our work (Images)</h4>
 
-        <!-- HOW IT WORKS -->
-        <div class="col-lg-6">
-            <div class="glass-card p-4 h-100">
-                <h3 class="mb-3">How it works</h3>
-                <ol class="mb-0" style="line-height:1.9;">
-                    <li>Select one or more services on the Dashboard.</li>
-                    <li>Go to Checkout and send your request (message + optional proof).</li>
-                    <li>Admin replies in Inbox with progress and next steps.</li>
-                </ol>
-            </div>
-        </div>
-
-        <!-- PRICING -->
-        <div class="col-12">
-            <div class="glass-card p-4">
-                <h3 class="mb-3">Pricing</h3>
-
-                <div class="table-responsive">
-                    <table class="table align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th>Service</th>
-                                <th>What you get</th>
-                                <th class="text-end">Price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>CV PDF</strong></td>
-                                <td>Professional CV delivered in PDF format</td>
-                                <td class="text-end"><strong>R70</strong></td>
-                            </tr>
-                            <tr>
-                                <td><strong>CV PDF + “Directly”</strong></td>
-                                <td>CV PDF + extra direct assistance/service</td>
-                                <td class="text-end"><strong>R100</strong></td>
-                            </tr>
-                            <tr>
-                                <td><strong>University Applications</strong></td>
-                                <td>Guidance + submission support (depending on institution)</td>
-                                <td class="text-end"><strong>Varies</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-3" style="opacity:.85;">
-                    Note: Prices may differ depending on complexity (multiple pages, many institutions, urgent deadlines, etc.).
-                </div>
-            </div>
-        </div>
-
-        <!-- PORTFOLIO: IMAGES -->
-        <div class="col-lg-6">
-            <div class="glass-card p-4 h-100">
-                <h3 class="mb-3">Our work (Images)</h3>
-
-                <div class="row g-3">
-                    <div class="col-6">
-                        <img class="img-fluid rounded-4 shadow-sm"
-                             src="~/images/work1.jpg"
-                             alt="MooraHub Work Sample 1" />
+                <div class="work-grid">
+                    <!-- Put your images in wwwroot/images/work/ -->
+                    <div class="work-item">
+                        <img src="~/images/work/work1.jpg" alt="MooraHub Work Sample 1" />
                     </div>
-                    <div class="col-6">
-                        <img class="img-fluid rounded-4 shadow-sm"
-                             src="~/images/work2.jpg"
-                             alt="MooraHub Work Sample 2" />
+                    <div class="work-item">
+                        <img src="~/images/work/work2.jpg" alt="MooraHub Work Sample 2" />
                     </div>
-                    <div class="col-6">
-                        <img class="img-fluid rounded-4 shadow-sm"
-                             src="~/images/work3.jpg"
-                             alt="MooraHub Work Sample 3" />
+                    <div class="work-item">
+                        <img src="~/images/work/work3.jpg" alt="MooraHub Work Sample 3" />
                     </div>
-                    <div class="col-6">
-                        <img class="img-fluid rounded-4 shadow-sm"
-                             src="~/images/work4.jpg"
-                             alt="MooraHub Work Sample 4" />
+                    <div class="work-item">
+                        <img src="~/images/work/work4.jpg" alt="MooraHub Work Sample 4" />
                     </div>
                 </div>
 
-                <div class="mt-3 text-muted">
-                    Tip: Put your images in <code>wwwroot/images/</code> and name them work1.jpg, work2.jpg, etc.
-                </div>
             </div>
         </div>
 
-        <!-- PORTFOLIO: VIDEOS -->
-        <div class="col-lg-6">
+        <!-- VIDEOS -->
+        <div class="col-12 col-lg-6">
             <div class="glass-card p-4 h-100">
-                <h3 class="mb-3">Our work (Videos)</h3>
+                <h4 class="mb-3">Our work (Videos)</h4>
 
-                <!-- Option A: Local video in wwwroot/videos/ -->
-                <video class="w-100 rounded-4 shadow-sm mb-3" controls>
-                    <source src="~/videos/demo1.mp4" type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
+                <div class="work-video-stack">
+                    <!-- Put your videos in wwwroot/videos/ -->
+                    <div class="work-item">
+                        <video controls preload="metadata">
+                            <source src="~/videos/work1.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
 
-                <!-- Option B: YouTube embed -->
-                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-sm">
-                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                            title="MooraHub Demo"
-                            allowfullscreen>
-                    </iframe>
+                    <div class="work-item">
+                        <video controls preload="metadata">
+                            <source src="~/videos/work2.mp4" type="video/mp4" />
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
                 </div>
 
-                <div class="mt-3 text-muted">
-                    Tip: Put local videos in <code>wwwroot/videos/</code> and update the filename.
-                </div>
-            </div>
-        </div>
-
-        <!-- PRIVACY POLICY -->
-        <div class="col-12">
-            <div class="glass-card p-4">
-                <h3 class="mb-3">Privacy Policy</h3>
-
-                <p style="opacity:.9;">
-                    We respect your privacy. When you use MooraHub, we may collect basic details needed to deliver our services
-                    (such as your email, your message content, and any files you choose to upload).
-                </p>
-
-                <ul class="mb-0" style="line-height:1.9;">
-                    <li><strong>We do not sell your data.</strong></li>
-                    <li><strong>Uploads</strong> (proof of payment / voice notes) are used only for service delivery and support.</li>
-                    <li><strong>Access control:</strong> Only the admin account can view all tickets.</li>
-                    <li>You can request removal of your messages/files by contacting support.</li>
-                </ul>
+                <!-- ✅ Removed the YouTube iframe completely -->
             </div>
         </div>
 
     </div>
+
+    <!-- PRICING -->
+    <div class="glass-card p-4 mt-4">
+        <h4 class="mb-3">How our pricing works</h4>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="price-box">
+                    <div class="price-title">CV PDF</div>
+                    <div class="price-amount">R70</div>
+                    <div class="price-note">Professional CV in PDF.</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="price-box">
+                    <div class="price-title">CV (PDF + Editing)</div>
+                    <div class="price-amount">R100</div>
+                    <div class="price-note">CV plus extra improvements.</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="price-box">
+                    <div class="price-title">University Application</div>
+                    <div class="price-amount">From R150</div>
+                    <div class="price-note">Depends on number of universities.</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="price-box">
+                    <div class="price-title">Templates</div>
+                    <div class="price-amount">From R200</div>
+                    <div class="price-note">Business, portfolio, reports.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="glass-card p-4 mt-4">
+        <h4 class="mb-3">Privacy policy</h4>
+        <p class="mb-0" style="opacity:.9;">
+            We only use your details to complete your request and communicate with you.
+            We do not sell your information. Proof of payment and voice notes are stored securely for service delivery purposes.
+        </p>
+    </div>
+
 </div>
+
+<style>
+    /* ====== Equal-size media blocks ====== */
+    .work-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .work-video-stack {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    /* Same frame for images & videos */
+    .work-item {
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(0,0,0,0.06);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        height: 210px; /* ✅ same height for all */
+    }
+
+        .work-item img,
+        .work-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ✅ makes it uniform */
+            display: block;
+        }
+
+    /* Pricing cards */
+    .price-box {
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid rgba(0,0,0,0.06);
+        background: rgba(255,255,255,0.55);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        height: 100%;
+    }
+
+    .price-title {
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .price-amount {
+        font-size: 1.35rem;
+        font-weight: 800;
+    }
+
+    .price-note {
+        opacity: .8;
+        font-size: .95rem;
+        margin-top: 6px;
+    }
+</style>
