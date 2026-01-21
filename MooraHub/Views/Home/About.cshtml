@@ -21,18 +21,17 @@
                 <h4 class="mb-3">Our work (Images)</h4>
 
                 <div class="work-grid">
-                    <!-- Put your images in wwwroot/images/work/ -->
                     <div class="work-item">
-                        <img src="~/images/work/work1.jpg" alt="MooraHub Work Sample 1" />
+                        <img src="~/images/work1.jpg" alt="MooraHub Work Sample 1" />
                     </div>
                     <div class="work-item">
-                        <img src="~/images/work/work2.jpg" alt="MooraHub Work Sample 2" />
+                        <img src="~/images/work2.jpg" alt="MooraHub Work Sample 2" />
                     </div>
                     <div class="work-item">
-                        <img src="~/images/work/work3.jpg" alt="MooraHub Work Sample 3" />
+                        <img src="~/images/work3.jpg" alt="MooraHub Work Sample 3" />
                     </div>
                     <div class="work-item">
-                        <img src="~/images/work/work4.jpg" alt="MooraHub Work Sample 4" />
+                        <img src="~/images/work4.jpg" alt="MooraHub Work Sample 4" />
                     </div>
                 </div>
 
@@ -45,23 +44,25 @@
                 <h4 class="mb-3">Our work (Videos)</h4>
 
                 <div class="work-video-stack">
-                    <!-- Put your videos in wwwroot/videos/ -->
+
+                    <!-- ✅ Your real video -->
                     <div class="work-item">
                         <video controls preload="metadata">
-                            <source src="~/videos/work1.mp4" type="video/mp4" />
+                            <source src="~/videos/demo1.mp4" type="video/mp4" />
                             Your browser does not support the video tag.
                         </video>
                     </div>
 
-                    <div class="work-item">
-                        <video controls preload="metadata">
-                            <source src="~/videos/work2.mp4" type="video/mp4" />
-                            Your browser does not support the video tag.
-                        </video>
+                    <!-- ✅ Clean placeholder (until you add a 2nd video) -->
+                    <div class="work-item placeholder-tile">
+                        <div class="placeholder-text">
+                            Add another video in <b>wwwroot/videos/</b><br />
+                            Example: <b>demo2.mp4</b>
+                        </div>
                     </div>
+
                 </div>
 
-                <!-- ✅ Removed the YouTube iframe completely -->
             </div>
         </div>
 
@@ -118,7 +119,6 @@
 </div>
 
 <style>
-    /* ====== Equal-size media blocks ====== */
     .work-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -131,25 +131,37 @@
         gap: 14px;
     }
 
-    /* Same frame for images & videos */
     .work-item {
         border-radius: 16px;
         overflow: hidden;
         background: rgba(255,255,255,0.6);
         border: 1px solid rgba(0,0,0,0.06);
         box-shadow: 0 12px 30px rgba(0,0,0,0.06);
-        height: 210px; /* ✅ same height for all */
+        height: 210px;
     }
 
         .work-item img,
         .work-item video {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* ✅ makes it uniform */
+            object-fit: cover;
             display: block;
         }
 
-    /* Pricing cards */
+    .placeholder-tile {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.03);
+    }
+
+    .placeholder-text {
+        text-align: center;
+        opacity: .75;
+        padding: 14px;
+        font-size: .95rem;
+    }
+
     .price-box {
         border-radius: 16px;
         padding: 16px;
