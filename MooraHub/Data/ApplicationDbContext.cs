@@ -6,6 +6,8 @@ namespace MooraHub.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {
+        public DbSet<PathfinderResult> PathfinderResults { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
