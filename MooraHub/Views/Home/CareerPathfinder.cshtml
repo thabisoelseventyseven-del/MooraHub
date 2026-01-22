@@ -3,6 +3,146 @@
 }
 
 <style>
+    /* =========================
+       PATHFINDER BUTTON FIX
+    ========================= */
+    .btnx {
+        padding: 10px 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 14px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+        /* Primary action */
+        .btnx.primary {
+            color: #fff;
+            background: linear-gradient(135deg, #ff2d2d, #a600ff);
+            box-shadow: 0 14px 30px rgba(255,45,45,.35);
+        }
+
+            .btnx.primary:hover {
+                transform: translateY(-1px);
+                filter: brightness(1.05);
+                box-shadow: 0 18px 38px rgba(255,45,45,.45);
+            }
+
+    /* Light mode – FORCE visibility */
+    body:not(.dark-mode) .btnx.primary {
+        color: #fff;
+        background: linear-gradient(135deg, #ff2d2d, #a600ff);
+        box-shadow: 0 14px 28px rgba(0,0,0,.25);
+    }
+
+    /* =========================
+       LIGHT MODE OVERRIDES
+       (site uses body:not(.dark-mode))
+    ========================= */
+    body:not(.dark-mode) {
+        /* keep your page readable on light mode */
+        color: #121826;
+        background: radial-gradient(1200px 800px at 20% 10%, rgba(255,45,45,.10), transparent 55%), radial-gradient(900px 700px at 80% 30%, rgba(166,0,255,.08), transparent 60%), radial-gradient(900px 700px at 50% 90%, rgba(35,209,139,.08), transparent 60%), linear-gradient(180deg, #f7f8ff 0%, #ffffff 60%, #f4f6ff 100%);
+    }
+
+        /* Cards: brighter glass */
+        body:not(.dark-mode) .card {
+            background: rgba(255,255,255,.75);
+            border-color: rgba(0,0,0,.08);
+            box-shadow: 0 18px 40px rgba(0,0,0,.12);
+            backdrop-filter: blur(14px);
+        }
+
+        /* Headers inside cards */
+        body:not(.dark-mode) .cardHeader {
+            border-bottom-color: rgba(0,0,0,.08);
+            background: linear-gradient(180deg, rgba(0,0,0,.03), transparent);
+        }
+
+            body:not(.dark-mode) .cardHeader p,
+            body:not(.dark-mode) .subtitle,
+            body:not(.dark-mode) .qHint,
+            body:not(.dark-mode) .stepText,
+            body:not(.dark-mode) .resultIntro,
+            body:not(.dark-mode) .miniMeta,
+            body:not(.dark-mode) .footerNote {
+                color: rgba(18, 24, 38, .70);
+            }
+
+        /* Buttons: readable on light mode */
+        body:not(.dark-mode) .btnx {
+            background: rgba(255,255,255,.75);
+            color: #111;
+            border-color: rgba(0,0,0,.12);
+        }
+
+            body:not(.dark-mode) .btnx:hover {
+                background: rgba(255,255,255,.92);
+                border-color: rgba(0,0,0,.18);
+            }
+
+            body:not(.dark-mode) .btnx.primary {
+                color: #fff;
+                border-color: transparent;
+            }
+
+        /* Inputs */
+        body:not(.dark-mode) input,
+        body:not(.dark-mode) select {
+            background: rgba(255,255,255,.92);
+            color: #111;
+            border-color: rgba(0,0,0,.14);
+        }
+
+            body:not(.dark-mode) input:focus,
+            body:not(.dark-mode) select:focus {
+                border-color: rgba(255,45,45,.45);
+                box-shadow: 0 0 0 3px rgba(255,45,45,.10);
+            }
+
+        /* Chips */
+        body:not(.dark-mode) .chip {
+            background: rgba(255,255,255,.75);
+            border-color: rgba(0,0,0,.12);
+            color: #111;
+        }
+
+            body:not(.dark-mode) .chip.selected {
+                background: rgba(255,45,45,.10);
+                border-color: rgba(255,45,45,.35);
+            }
+
+        /* Mini cards + tags */
+        body:not(.dark-mode) .miniCard {
+            background: rgba(255,255,255,.70);
+            border-color: rgba(0,0,0,.10);
+        }
+
+        body:not(.dark-mode) .tag {
+            background: rgba(0,0,0,.05);
+            border-color: rgba(0,0,0,.10);
+            color: rgba(18,24,38,.75);
+        }
+
+        /* Meter */
+        body:not(.dark-mode) .meter {
+            background: rgba(0,0,0,.06);
+            border-color: rgba(0,0,0,.10);
+        }
+
+        /* Badge base */
+        body:not(.dark-mode) .badge {
+            background: rgba(0,0,0,.04);
+            border-color: rgba(0,0,0,.10);
+            color: rgba(18,24,38,.70);
+        }
+
+        /* Dots: slightly softer on light mode */
+        body:not(.dark-mode) .dot {
+            opacity: .45;
+        }
+
     :root {
         --bg: #07070a;
         --card: rgba(255,255,255,.06);
