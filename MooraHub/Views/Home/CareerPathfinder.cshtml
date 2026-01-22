@@ -1,0 +1,886 @@
+﻿@{
+    ViewData["Title"] = "Career Pathfinder";
+}
+
+<style>
+    :root {
+        --bg: #07070a;
+        --card: rgba(255,255,255,.06);
+        --card2: rgba(255,255,255,.09);
+        --text: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.65);
+        --line: rgba(255,255,255,.12);
+        --accent: #ff2d2d;
+        --accent2: #a600ff;
+        --good: #23d18b;
+        --warn: #ffcc00;
+        --bad: #ff4d4d;
+        --shadow: 0 18px 40px rgba(0,0,0,.45);
+        --radius: 18px;
+        --blur: blur(14px);
+        --max: 1100px;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    /* NOTE: if your site already styles body, you can remove this block */
+    body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        color: var(--text);
+        background: radial-gradient(1200px 800px at 20% 10%, rgba(255,45,45,.14), transparent 55%), radial-gradient(900px 700px at 80% 30%, rgba(166,0,255,.12), transparent 60%), radial-gradient(900px 700px at 50% 90%, rgba(35,209,139,.10), transparent 60%), linear-gradient(180deg, #050509 0%, #080812 60%, #050509 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .wrap {
+        width: min(var(--max), calc(100% - 34px));
+        margin: 28px auto 70px;
+    }
+
+    .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(166,0,255,.75));
+        box-shadow: 0 10px 25px rgba(255,45,45,.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .logo::after {
+            content: "";
+            position: absolute;
+            inset: -20px;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.45), transparent 40%);
+            transform: rotate(12deg);
+        }
+
+    h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: .4px;
+    }
+
+    .subtitle {
+        margin: 2px 0 0;
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btnx {
+        border: 1px solid var(--line);
+        background: rgba(255,255,255,.06);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: .2s transform ease, .2s background ease, .2s border ease;
+        user-select: none;
+    }
+
+        .btnx:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,.09);
+            border-color: rgba(255,255,255,.22);
+        }
+
+        .btnx.primary {
+            background: linear-gradient(135deg, rgba(255,45,45,.95), rgba(166,0,255,.65));
+            border-color: transparent;
+            box-shadow: 0 14px 35px rgba(255,45,45,.18);
+        }
+
+            .btnx.primary:hover {
+                filter: brightness(1.05);
+            }
+
+    .grid {
+        display: grid;
+        grid-template-columns: 1.05fr .95fr;
+        gap: 18px;
+        align-items: start;
+    }
+
+    @@media (max-width: 980px) {
+        .grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card {
+        border: 1px solid var(--line);
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: var(--blur);
+        overflow: hidden;
+    }
+
+    .cardHeader {
+        padding: 18px 18px 14px;
+        border-bottom: 1px solid var(--line);
+        background: linear-gradient(180deg, rgba(255,255,255,.06), transparent);
+    }
+
+        .cardHeader h2 {
+            margin: 0;
+            font-size: 16px;
+            letter-spacing: .3px;
+        }
+
+        .cardHeader p {
+            margin: 7px 0 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+    .cardBody {
+        padding: 18px;
+    }
+
+    .progressRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .meter {
+        flex: 1;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,.08);
+        border: 1px solid rgba(255,255,255,.10);
+        overflow: hidden;
+    }
+
+        .meter > div {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, rgba(255,45,45,1), rgba(166,0,255,.9));
+            border-radius: 999px;
+            transition: .35s ease width;
+        }
+
+    .stepText {
+        font-size: 12.5px;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    .screen {
+        display: none;
+        animation: pop .25s ease both;
+    }
+
+        .screen.active {
+            display: block;
+        }
+
+    @@keyframes pop {
+        from {
+            opacity: 0;
+            transform: translateY(8px) scale(.99);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .qTitle {
+        font-size: 15px;
+        margin: 0 0 12px;
+        letter-spacing: .2px;
+    }
+
+    .qHint {
+        margin: -6px 0 14px;
+        color: var(--muted);
+        font-size: 13px;
+    }
+
+    .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    @@media (max-width:560px) {
+        .row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.05);
+    }
+
+    label {
+        font-size: 12.5px;
+        color: var(--muted);
+    }
+
+    input, select {
+        background: rgba(0,0,0,.35);
+        border: 1px solid rgba(255,255,255,.14);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        outline: none;
+    }
+
+        input:focus, select:focus {
+            border-color: rgba(255,45,45,.55);
+            box-shadow: 0 0 0 3px rgba(255,45,45,.12);
+        }
+
+    .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .chip {
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(255,255,255,.05);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: .2s ease;
+        user-select: none;
+        font-size: 13px;
+    }
+
+        .chip:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,255,255,.25);
+        }
+
+        .chip.selected {
+            border-color: rgba(255,45,45,.55);
+            background: rgba(255,45,45,.12);
+            box-shadow: 0 10px 25px rgba(255,45,45,.12);
+        }
+
+    .navRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+    }
+
+    .navLeft, .navRight {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .resultHeader {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .badge {
+        padding: 8px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(255,255,255,.06);
+        color: var(--muted);
+    }
+
+        .badge.good {
+            border-color: rgba(35,209,139,.45);
+            background: rgba(35,209,139,.10);
+            color: rgba(35,209,139,.95);
+        }
+
+        .badge.warn {
+            border-color: rgba(255,204,0,.45);
+            background: rgba(255,204,0,.10);
+            color: rgba(255,204,0,.95);
+        }
+
+        .badge.bad {
+            border-color: rgba(255,77,77,.45);
+            background: rgba(255,77,77,.10);
+            color: rgba(255,77,77,.95);
+        }
+
+    .resultIntro {
+        margin: 10px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .cardsList {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .miniCard {
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,.12);
+        background: rgba(255,255,255,.05);
+    }
+
+        .miniCard h3 {
+            margin: 0;
+            font-size: 14px;
+            letter-spacing: .2px;
+        }
+
+    .miniMeta {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 6px;
+        line-height: 1.35;
+    }
+
+    .tagRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .tag {
+        font-size: 12px;
+        padding: 6px 9px;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,.14);
+        background: rgba(0,0,0,.25);
+        color: var(--muted);
+    }
+
+    .footerNote {
+        margin-top: 14px;
+        color: rgba(255,255,255,.55);
+        font-size: 12.5px;
+        line-height: 1.45;
+    }
+
+    /* Floating dots */
+    .dot {
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        filter: blur(.2px);
+        opacity: .75;
+        pointer-events: none;
+        animation: drift linear infinite;
+    }
+
+    @@keyframes drift {
+        from {
+            transform: translateY(110vh) translateX(0);
+        }
+
+        to {
+            transform: translateY(-20vh) translateX(40px);
+        }
+    }
+</style>
+
+<div id="dots"></div>
+
+<div class="wrap">
+    <div class="topbar">
+        <div class="brand">
+            <div class="logo"></div>
+            <div>
+                <h1>MooraHub Career Pathfinder</h1>
+                <div class="subtitle">Answer a few questions — get realistic study paths and career direction.</div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btnx" onclick="window.history.back()">Back</button>
+            <button class="btnx primary" id="startBtn">Start Pathfinder</button>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- LEFT -->
+        <div class="card">
+            <div class="cardHeader">
+                <h2>Find Your Path</h2>
+                <p>This tool is designed for South African learners. It prioritizes realistic options based on your subjects, APS, and interests.</p>
+            </div>
+
+            <div class="cardBody">
+                <div class="progressRow">
+                    <div class="meter"><div id="bar"></div></div>
+                    <div class="stepText" id="stepText">Step 0 of 5</div>
+                </div>
+
+                <div class="screen" id="s1">
+                    <div class="qTitle">1) Your results snapshot</div>
+                    <div class="qHint">Enter what you know. If unsure, estimate — we’ll still guide you.</div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label for="aps">APS Score (e.g., 28, 34)</label>
+                            <input id="aps" type="number" min="10" max="60" placeholder="Enter APS" />
+                        </div>
+
+                        <div class="field">
+                            <label for="mathType">Math subject</label>
+                            <select id="mathType">
+                                <option value="">Select</option>
+                                <option value="math">Mathematics</option>
+                                <option value="mathlit">Mathematical Literacy</option>
+                                <option value="none">No Math</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screen" id="s2">
+                    <div class="qTitle">2) Your strongest interest</div>
+                    <div class="qHint">Pick one main direction. You can expand later.</div>
+
+                    <div class="chips" id="interestChips">
+                        <div class="chip" data-v="health">Health (Nursing, EMS, Care)</div>
+                        <div class="chip" data-v="tech">Tech (IT, Systems, Data)</div>
+                        <div class="chip" data-v="agri">Agriculture (Soil, Crops, Animal)</div>
+                        <div class="chip" data-v="biz">Business (Admin, HR, Supply Chain)</div>
+                        <div class="chip" data-v="law">Law & Justice</div>
+                        <div class="chip" data-v="edu">Education & Teaching</div>
+                    </div>
+                </div>
+
+                <div class="screen" id="s3">
+                    <div class="qTitle">3) Learning style</div>
+                    <div class="qHint">This helps us recommend diploma vs degree routes.</div>
+
+                    <div class="chips" id="styleChips">
+                        <div class="chip" data-v="practical">Practical (hands-on)</div>
+                        <div class="chip" data-v="balanced">Balanced</div>
+                        <div class="chip" data-v="academic">Academic (theory-heavy)</div>
+                    </div>
+                </div>
+
+                <div class="screen" id="s4">
+                    <div class="qTitle">4) Province preference</div>
+                    <div class="qHint">Optional — used for realistic job direction and placements.</div>
+
+                    <div class="row">
+                        <div class="field">
+                            <label for="province">Province</label>
+                            <select id="province">
+                                <option value="">No preference</option>
+                                <option>Limpopo</option>
+                                <option>Gauteng</option>
+                                <option>KwaZulu-Natal</option>
+                                <option>Eastern Cape</option>
+                                <option>Western Cape</option>
+                                <option>Mpumalanga</option>
+                                <option>North West</option>
+                                <option>Free State</option>
+                                <option>Northern Cape</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="risk">How much risk can you handle?</label>
+                            <select id="risk">
+                                <option value="low">Low risk (stable, realistic)</option>
+                                <option value="mid" selected>Medium risk</option>
+                                <option value="high">High risk (competitive paths)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="screen" id="s5">
+                    <div class="qTitle">5) Finish</div>
+                    <div class="qHint">Click “Generate Results” to see your recommended paths.</div>
+
+                    <div class="miniCard">
+                        <div class="miniMeta" id="summaryText">Your summary will appear here.</div>
+                    </div>
+                </div>
+
+                <div class="navRow">
+                    <div class="navLeft">
+                        <button class="btnx" id="prevBtn">Previous</button>
+                        <button class="btnx" id="resetBtn">Reset</button>
+                    </div>
+                    <div class="navRight">
+                        <button class="btnx primary" id="nextBtn">Next</button>
+                        <button class="btnx primary" id="genBtn" style="display:none;">Generate Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="card">
+            <div class="cardHeader">
+                <h2>Your Results</h2>
+                <p>Recommendations update after you generate results. This is guidance — always confirm admission requirements.</p>
+            </div>
+
+            <div class="cardBody" id="resultsArea">
+                <div class="resultHeader">
+                    <div>
+                        <div class="badge" id="fitBadge">Not generated</div>
+                        <p class="resultIntro" id="resultIntro">Start the Pathfinder and generate results to see your best routes.</p>
+                    </div>
+                    <button class="btnx" id="copyBtn" style="display:none;">Copy Summary</button>
+                </div>
+
+                <div class="cardsList" id="cardsList"></div>
+
+                <div class="footerNote" id="footNote">
+                    Tip: This module can later connect to a database (courses, universities, bursaries, deadlines).
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Floating dots
+    (function makeDots(){
+      const holder = document.getElementById("dots");
+      const colors = ["rgba(255,45,45,.9)","rgba(166,0,255,.9)","rgba(35,209,139,.9)","rgba(255,255,255,.5)"];
+      const count = 26;
+      for(let i=0;i<count;i++){
+        const d = document.createElement("div");
+        d.className = "dot";
+        const size = 6 + Math.random()*10;
+        d.style.width = size+"px";
+        d.style.height = size+"px";
+        d.style.left = (Math.random()*100)+"vw";
+        d.style.animationDuration = (10 + Math.random()*18)+"s";
+        d.style.animationDelay = (-Math.random()*18)+"s";
+        d.style.opacity = (0.25 + Math.random()*0.55).toFixed(2);
+        d.style.background = colors[Math.floor(Math.random()*colors.length)];
+        holder.appendChild(d);
+      }
+    })();
+
+    const screens = ["s1","s2","s3","s4","s5"].map(id => document.getElementById(id));
+    const bar = document.getElementById("bar");
+    const stepText = document.getElementById("stepText");
+
+    const startBtn = document.getElementById("startBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const genBtn = document.getElementById("genBtn");
+
+    const interestChips = document.getElementById("interestChips");
+    const styleChips = document.getElementById("styleChips");
+
+    const summaryText = document.getElementById("summaryText");
+
+    const fitBadge = document.getElementById("fitBadge");
+    const resultIntro = document.getElementById("resultIntro");
+    const cardsList = document.getElementById("cardsList");
+    const copyBtn = document.getElementById("copyBtn");
+
+    let step = 0;
+    let state = { aps:null, mathType:"", interest:"", style:"", province:"", risk:"mid" };
+
+    function setStep(n){
+      step = Math.max(0, Math.min(5, n));
+      screens.forEach((s, idx) => s.classList.toggle("active", idx === step-1));
+      const pct = step === 0 ? 0 : ((step-1) / 4) * 100;
+      bar.style.width = pct + "%";
+      stepText.textContent = `Step ${step} of 5`;
+
+      prevBtn.disabled = step <= 1;
+      nextBtn.style.display = (step >= 1 && step <= 4) ? "inline-block" : "none";
+      genBtn.style.display = (step === 5) ? "inline-block" : "none";
+      copyBtn.style.display = "none";
+
+      if(step === 0){
+        stepText.textContent = "Step 0 of 5";
+        bar.style.width = "0%";
+        screens.forEach(s => s.classList.remove("active"));
+      }
+
+      updateSummary();
+    }
+
+    function resetAll(){
+      state = { aps:null, mathType:"", interest:"", style:"", province:"", risk:"mid" };
+      document.getElementById("aps").value = "";
+      document.getElementById("mathType").value = "";
+      document.getElementById("province").value = "";
+      document.getElementById("risk").value = "mid";
+      clearSelected(interestChips);
+      clearSelected(styleChips);
+
+      fitBadge.className = "badge";
+      fitBadge.textContent = "Not generated";
+      resultIntro.textContent = "Start the Pathfinder and generate results to see your best routes.";
+      cardsList.innerHTML = "";
+      copyBtn.style.display = "none";
+
+      setStep(0);
+    }
+
+    function clearSelected(container){
+      [...container.querySelectorAll(".chip")].forEach(c => c.classList.remove("selected"));
+    }
+
+    function selectChip(container, value){
+      clearSelected(container);
+      const chip = container.querySelector(`.chip[data-v="${value}"]`);
+      if(chip) chip.classList.add("selected");
+    }
+
+    function updateStateFromInputs(){
+      const apsVal = document.getElementById("aps").value;
+      state.aps = apsVal ? parseInt(apsVal, 10) : null;
+      state.mathType = document.getElementById("mathType").value;
+      state.province = document.getElementById("province").value;
+      state.risk = document.getElementById("risk").value;
+    }
+
+    function updateSummary(){
+      updateStateFromInputs();
+      const apsText = state.aps ? `APS ${state.aps}` : "APS not provided";
+      const mathText = state.mathType ? (state.mathType === "mathlit" ? "Math Lit" : state.mathType === "math" ? "Math" : "No Math") : "Math not selected";
+      const interestText = state.interest ? state.interest : "interest not selected";
+      const styleText = state.style ? state.style : "style not selected";
+      const provText = state.province ? state.province : "no province preference";
+      summaryText.textContent = `Summary: ${apsText}, ${mathText}, interest: ${interestText}, learning: ${styleText}, province: ${provText}, risk: ${state.risk}.`;
+    }
+
+    function validateStep(){
+      updateStateFromInputs();
+      if(step === 1){
+        if(!state.mathType){ alert("Please select your Math subject."); return false; }
+        if(state.aps !== null && (state.aps < 10 || state.aps > 60)){
+          alert("APS looks incorrect. Please enter a value between 10 and 60.");
+          return false;
+        }
+      }
+      if(step === 2 && !state.interest){ alert("Please select your strongest interest."); return false; }
+      if(step === 3 && !state.style){ alert("Please select your learning style."); return false; }
+      return true;
+    }
+
+    function buildRecommendations(){
+      const aps = state.aps ?? 0;
+      const math = state.mathType;
+      const interest = state.interest;
+      const style = state.style;
+      const risk = state.risk;
+
+      let fit = "warn";
+      let fitText = "Mixed fit";
+      let intro = "You have viable options, but you must target the right entry routes and strengthen your profile.";
+
+      const strongAPS = aps >= 30;
+      const midAPS = aps >= 24 && aps < 30;
+      const lowAPS = aps > 0 && aps < 24;
+
+      if(strongAPS){ fit="good"; fitText="Strong fit"; intro="Your APS is competitive for many diplomas and some degrees (subject dependent). Focus on alignment and requirements."; }
+      else if(midAPS){ fit="warn"; fitText="Realistic fit"; intro="You are well-positioned for diplomas and selected degrees depending on subject requirements and competition."; }
+      else if(lowAPS){ fit="warn"; fitText="Foundation routes"; intro="Consider Higher Certificates, extended programmes, TVET pathways, and bridging routes into diplomas/degrees."; }
+      else { fit="warn"; fitText="Needs details"; intro="Add your APS for more accurate guidance. We can still recommend routes based on subject type and interest."; }
+
+      const recs = [];
+      const pushRec = (title, level, meta, tags) => recs.push({title, level, meta, tags});
+
+      if(interest === "health"){
+        if(math === "mathlit"){
+          pushRec("Health Path (Math Lit-friendly)", "Diploma / Higher Certificate",
+            "Look at health-related diplomas, care work pathways, and bridging routes. Nursing is competitive; requirements vary by institution.",
+            ["Clinical exposure","Volunteer hours","Strong English","Competition"]);
+        } else if(math === "math"){
+          pushRec("Health Path (Math)", "Degree / Diploma",
+            "With Mathematics, your options widen (depending on Life Sciences/Physical Sciences). Focus on meeting minimum subject requirements.",
+            ["Nursing/Allied health","High demand areas","Entrance tests possible"]);
+        } else {
+          pushRec("Health Entry Route", "Higher Certificate",
+            "Without Math, start with foundational programmes, then articulate upward. Build a strong portfolio and references.",
+            ["Bridging route","Work-integrated learning"]);
+        }
+      }
+
+      if(interest === "tech"){
+        if(math === "mathlit"){
+          pushRec("Tech Path (Math Lit route)", "Diploma / Higher Certificate",
+            "Target IT diplomas that accept Math Lit. Focus on projects, GitHub, basic networking, and databases.",
+            ["Portfolio","Internships","Certificates","Real projects"]);
+        } else if(math === "math"){
+          pushRec("Tech Path (Math route)", "Degree / Diploma",
+            "You can pursue more computational degrees depending on APS and science. Build coding depth early.",
+            ["Computer Science/IT","Algorithms","Strong employability"]);
+        } else {
+          pushRec("Tech Entry Route", "Higher Certificate",
+            "Start with foundational computing programmes, then articulate into diplomas. Build proof of skills.",
+            ["Web apps","Freelance","Certs: A+/N+"]);
+        }
+      }
+
+      if(interest === "agri"){
+        if(math === "mathlit"){
+          pushRec("Agriculture Path (Math Lit route)", "Diploma / Selected Degrees",
+            "Many agriculture diplomas accept Math Lit. Focus on practical training, farms/industry exposure, and specialisation (soil/crops).",
+            ["Fieldwork","Food security","Regional demand"]);
+        } else {
+          pushRec("Agriculture Path", "Degree / Diploma",
+            "With Mathematics you may access more BSc-type pathways depending on the institution. Specialise for employability.",
+            ["Soil science","Crop science","Agri-economics"]);
+        }
+      }
+
+      if(interest === "biz"){
+        pushRec("Business Path", style === "academic" ? "Degree" : "Diploma",
+          "Business routes are broad. To stand out, pick a niche (supply chain, HR, public admin) and gain work experience early.",
+          ["Internships","Excel","Communication","Niche focus"]);
+      }
+
+      if(interest === "law"){
+        pushRec("Law & Justice Path", "Degree (high competition) / Diploma alternatives",
+          "Law is competitive. If risk is low, consider justice-related diplomas and articulation routes while improving marks and exposure.",
+          ["Competition","Reading-heavy","Clerkships"]);
+      }
+
+      if(interest === "edu"){
+        pushRec("Education Path", "Diploma / Degree",
+          "Teaching is structured and regulated. Strengthen language and subject choice, and consider scarce-skill teaching areas.",
+          ["Scarce skills","Practical teaching","PGCE pathways"]);
+      }
+
+      if(risk === "low"){
+        pushRec("Low-risk strategy","Action plan",
+          "Prioritise programmes with clear entry requirements you already meet. Build employability with internships, volunteer work, and short courses.",
+          ["Stable route","Step-by-step"]);
+      } else if(risk === "high"){
+        pushRec("High-risk strategy","Action plan",
+          "Apply to competitive programmes too, but also apply to solid backup routes. Build a strong profile and keep deadlines tight.",
+          ["Ambitious route","Backup plans"]);
+      } else {
+        pushRec("Balanced strategy","Action plan",
+          "Mix one ambitious option, two realistic options, and one backup option. Focus on documentation and early applications.",
+          ["Balanced route","Multiple options"]);
+      }
+
+      if(state.province){
+        pushRec("Province note","Local reality",
+          `Since you prefer ${state.province}, focus on institutions and industries active there. Consider relocation only if placement opportunities are limited.`,
+          ["Location matters","Placement opportunities"]);
+      }
+
+      fitBadge.className = `badge ${fit}`;
+      fitBadge.textContent = fitText;
+      resultIntro.textContent = intro;
+
+      cardsList.innerHTML = "";
+      recs.forEach(r => {
+        const div = document.createElement("div");
+        div.className = "miniCard";
+        div.innerHTML = `
+          <div class="miniTop">
+            <div>
+              <h3>${r.title}</h3>
+              <div class="miniMeta"><b>Level:</b> ${r.level}<br/>${r.meta}</div>
+            </div>
+          </div>
+          <div class="tagRow">${r.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+        `;
+        cardsList.appendChild(div);
+      });
+
+      copyBtn.style.display = "inline-block";
+    }
+
+    interestChips.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if(!chip) return;
+      state.interest = chip.dataset.v;
+      selectChip(interestChips, state.interest);
+      updateSummary();
+    });
+
+    styleChips.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if(!chip) return;
+      state.style = chip.dataset.v;
+      selectChip(styleChips, state.style);
+      updateSummary();
+    });
+
+    startBtn.addEventListener("click", () => {
+      if(step === 0) setStep(1);
+      else setStep(step);
+    });
+
+    prevBtn.addEventListener("click", () => { if(step > 1) setStep(step - 1); });
+
+    nextBtn.addEventListener("click", () => {
+      if(!validateStep()) return;
+      if(step < 5) setStep(step + 1);
+    });
+
+    resetBtn.addEventListener("click", resetAll);
+
+    genBtn.addEventListener("click", () => { updateSummary(); buildRecommendations(); });
+
+    copyBtn.addEventListener("click", async () => {
+      const text = summaryText.textContent + "\n\nRecommended paths:\n" +
+        [...cardsList.querySelectorAll(".miniCard h3")].map(h => "- " + h.textContent).join("\n");
+      try{
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => copyBtn.textContent = "Copy Summary", 1200);
+      }catch{
+        alert("Copy failed. You can manually select and copy the summary.");
+      }
+    });
+
+    resetAll();
+</script>

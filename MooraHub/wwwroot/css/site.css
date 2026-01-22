@@ -262,3 +262,30 @@ body.dark-mode .mh-textarea {
 .media-tile.missing {
     background: rgba(0,0,0,0.04);
 }
+@@media (max-width: 980px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@keyframes pop {
+    from {
+        opacity: 0;
+        transform: translateY(8px) scale(.99);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@@keyframes drift {
+    from {
+        transform: translateY(110vh) translateX(0);
+    }
+
+    to {
+        transform: translateY(-20vh) translateX(40px);
+    }
+}

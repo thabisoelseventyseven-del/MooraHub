@@ -1,41 +1,47 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-public class HomeController : Controller
+namespace MooraHub.Controllers
 {
-    public IActionResult About()
+    public class HomeController : Controller
     {
-        return View();
-    }
-
-    [AllowAnonymous]
-    public IActionResult Index()
-    {
-        if (User.IsInRole("Admin"))
-            return RedirectToAction("Admin", "Inbox");
-
-        // If user is already logged in, send them to Dashboard
-        if (User.Identity != null && User.Identity.IsAuthenticated)
+        [AllowAnonymous]
+        public IActionResult Index()
         {
-            return RedirectToAction("Dashboard");
+            if (User.IsInRole("Admin"))
+                return RedirectToAction("Admin", "Inbox");
+
+            // If user is already logged in, send them to Dashboard
+            if (User.Identity != null && User.Identity.IsAuthenticated)
+                return RedirectToAction(nameof(Dashboard));
+
+            // If not logged in, show Home page
+            return View();
         }
-        // If not logged in, show Home page
-        return View();
-    }
 
-    [Authorize]
-    public IActionResult Dashboard()
-    {
-        return View();
-    }
-    [Authorize]
-    public IActionResult Checkout()
-    {
-        return View();
-    }
+        [AllowAnonymous]
+        public IActionResult About()
+        {
+            return View();
+        }
 
-    public IActionResult Privacy()
-    {
-        return View();
+        [AllowAnonymous]
+        public IActionResult CareerPathfinder()
+        {
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult Dashboard()
+        {
+            return View();
+        }
+
+        // NOTE: Checkout is normally in CartController. Keep only if you truly have a View here.
+        [Authorize]
+        public IActionResult Checkout()
+        {
+            return View();
+        }
     }
 }

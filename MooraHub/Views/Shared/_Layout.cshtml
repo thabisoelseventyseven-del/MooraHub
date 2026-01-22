@@ -43,6 +43,11 @@
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
+                        <!-- ✅ Career Pathfinder link INSIDE navbar -->
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Home" asp-action="CareerPathfinder">Find My Path</a>
+                        </li>
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
@@ -53,7 +58,6 @@
                             <li class="nav-item">
                                 <a class="nav-link text-warning fw-semibold d-flex align-items-center gap-2"
                                    asp-controller="Cart" asp-action="Checkout">
-
                                     Checkout
 
                                     @{
@@ -110,14 +114,13 @@
                             }
                         }
 
-                        <!-- ✅ Replace Privacy with About -->
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="About">About</a>
                         </li>
                     </ul>
 
                     <div class="d-flex align-items-center gap-2">
-                        <button id="modeToggle" class="btn btn-outline-light btn-sm">
+                        <button id="modeToggle" class="btn btn-outline-light btn-sm" type="button">
                             🌙 / ☀️
                         </button>
 
